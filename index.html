@@ -3,9 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script src="./assets/theme.js"></script>
   <title>Web Tools</title>
   <style>
-    :root {
+    :root, html[data-theme="dark"] {
+      color-scheme: dark;
       --bg: #0f0f0f;
       --surface: #1a1a1a;
       --border: #2a2a2a;
@@ -13,6 +15,18 @@
       --muted: #888;
       --primary: #6366f1;
       --primary-hover: #818cf8;
+      --header: rgba(15,15,15,.9);
+    }
+    html[data-theme="light"] {
+      color-scheme: light;
+      --bg: #f8fafc;
+      --surface: #ffffff;
+      --border: #e2e8f0;
+      --text: #0f172a;
+      --muted: #64748b;
+      --primary: #4f46e5;
+      --primary-hover: #4338ca;
+      --header: rgba(248,250,252,.92);
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -27,7 +41,7 @@
       position: sticky;
       top: 0;
       z-index: 20;
-      background: rgba(15,15,15,.9);
+      background: var(--header);
       backdrop-filter: blur(12px);
       border-bottom: 1px solid var(--border);
     }
@@ -41,8 +55,9 @@
       justify-content: space-between;
     }
     .logo { font-weight: 700; font-size: 1.15rem; }
-    .lang { display: flex; gap: 4px; }
-    .lang button {
+    .switches { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+    .lang, .theme { display: flex; gap: 4px; }
+    .lang button, .theme button {
       background: transparent;
       border: 1px solid transparent;
       color: var(--muted);
@@ -52,7 +67,7 @@
       font: inherit;
       font-size: 13px;
     }
-    .lang button.active, .lang button:hover {
+    .lang button.active, .theme button.active, .lang button:hover, .theme button:hover {
       color: var(--text);
       background: var(--surface);
       border-color: var(--border);
@@ -102,9 +117,15 @@
   <header>
     <div class="bar">
       <div class="logo">Web Tools</div>
-      <div class="lang">
-        <button type="button" data-lang="zh">中文</button>
-        <button type="button" data-lang="en">EN</button>
+      <div class="switches">
+        <div class="lang">
+          <button type="button" data-lang="zh">中文</button>
+          <button type="button" data-lang="en">EN</button>
+        </div>
+        <div class="theme" role="group" aria-label="Theme">
+          <button type="button" data-theme-set="light" data-i18n="themeLight">Light</button>
+          <button type="button" data-theme-set="dark" data-i18n="themeDark">Dark</button>
+        </div>
       </div>
     </div>
   </header>
@@ -160,6 +181,8 @@
     var I18N = {
       en: {
         "document.title": "Web Tools",
+        themeLight: "Light",
+        themeDark: "Dark",
         heroTitle: "Browser tools. Nothing uploaded.",
         heroSub: "Color, JSON, passwords, QR, regex, image compress, calculators, and a whiteboard — all static pages.",
         colorTitle: "Color Tools",
@@ -182,6 +205,8 @@
       },
       zh: {
         "document.title": "常用工具",
+        themeLight: "浅色",
+        themeDark: "深色",
         heroTitle: "浏览器里的常用工具，不上传数据",
         heroSub: "颜色、JSON、密码、二维码、正则、图片压缩、计算器和白板。全部是静态页。",
         colorTitle: "颜色工具",

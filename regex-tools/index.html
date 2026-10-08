@@ -3,9 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script src="../assets/theme.js"></script>
   <title>RegexTool</title>
   <style>
-    :root {
+    :root, html[data-theme="dark"] {
+      color-scheme: dark;
       --bg-primary: #1a1a2e;
       --bg-secondary: #16213e;
       --bg-card: #1f2940;
@@ -17,6 +19,21 @@
       --warning: #ffa726;
       --error: #ef5350;
       --border: #2a3a5e;
+      --radius: 8px;
+    }
+    html[data-theme="light"] {
+      color-scheme: light;
+      --bg-primary: #f4f7fb;
+      --bg-secondary: #ffffff;
+      --bg-card: #ffffff;
+      --text-primary: #1a1a2e;
+      --text-secondary: #5a6478;
+      --accent: #0284c7;
+      --accent-hover: #0369a1;
+      --success: #16a34a;
+      --warning: #d97706;
+      --error: #dc2626;
+      --border: #d7e0ee;
       --radius: 8px;
     }
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -69,8 +86,9 @@
     .header nav a:hover, .header nav button.nav-link:hover,
     .header nav a.active, .header nav button.nav-link.active { color: var(--accent); }
     .back { color: var(--text-secondary); font-size: 13px; }
-    .lang { display: flex; gap: 4px; }
-    .lang button {
+    .switches { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+    .lang, .theme { display: flex; gap: 4px; }
+    .lang button, .theme button {
       background: transparent;
       border: 1px solid transparent;
       color: var(--text-secondary);
@@ -80,7 +98,7 @@
       font: inherit;
       font-size: 12px;
     }
-    .lang button.active, .lang button:hover {
+    .lang button.active, .theme button.active, .lang button:hover, .theme button:hover {
       color: var(--text-primary);
       border-color: var(--border);
       background: var(--bg-card);
@@ -276,9 +294,15 @@
         <button type="button" class="nav-link" data-section="date" data-i18n="navDate">Date</button>
         <a class="back" href="../index.html" data-i18n="back">← All tools</a>
       </nav>
-      <div class="lang">
-        <button type="button" data-lang="zh">中文</button>
-        <button type="button" data-lang="en">EN</button>
+      <div class="switches">
+        <div class="lang">
+          <button type="button" data-lang="zh">中文</button>
+          <button type="button" data-lang="en">EN</button>
+        </div>
+        <div class="theme" role="group" aria-label="Theme">
+          <button type="button" data-theme-set="light" data-i18n="themeLight">Light</button>
+          <button type="button" data-theme-set="dark" data-i18n="themeDark">Dark</button>
+        </div>
       </div>
     </div>
   </header>
@@ -437,6 +461,8 @@
 var I18N = {
   en: {
     "document.title": "RegexTool",
+    themeLight: "Light",
+    themeDark: "Dark",
     back: "← All tools",
     navTester: "Tester",
     navEmail: "Email",
@@ -500,6 +526,8 @@ var I18N = {
   },
   zh: {
     "document.title": "正则表达式工具",
+    themeLight: "浅色",
+    themeDark: "深色",
     back: "← 返回工具列表",
     navTester: "测试器",
     navEmail: "邮箱",

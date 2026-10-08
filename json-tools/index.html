@@ -3,25 +3,70 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script src="../assets/theme.js"></script>
   <title>JSON Tools</title>
   <style>
+    :root, html[data-theme="dark"] {
+      color-scheme: dark;
+      --bg: #0f1117;
+      --header: #161b22;
+      --surface: #21262d;
+      --surface-2: #1c2128;
+      --border: #30363d;
+      --text: #e1e4e8;
+      --muted: #8b949e;
+      --accent: #58a6ff;
+      --input: #0d1117;
+      --btn: #21262d;
+      --btn-hover: #30363d;
+      --primary: #238636;
+      --primary-hover: #2ea043;
+      --danger: #f85149;
+      --ok: #3fb950;
+      --warn: #d29922;
+      --err-bg: #3d1f1f;
+      --ok-bg: #16351f;
+      --warn-bg: #3d2f12;
+    }
+    html[data-theme="light"] {
+      color-scheme: light;
+      --bg: #ffffff;
+      --header: #f6f8fa;
+      --surface: #f6f8fa;
+      --surface-2: #eef2f6;
+      --border: #d0d7de;
+      --text: #1f2328;
+      --muted: #656d76;
+      --accent: #0969da;
+      --input: #ffffff;
+      --btn: #f6f8fa;
+      --btn-hover: #eaeef2;
+      --primary: #1a7f37;
+      --primary-hover: #2da44e;
+      --danger: #cf222e;
+      --ok: #1a7f37;
+      --warn: #9a6700;
+      --err-bg: #ffebe9;
+      --ok-bg: #dafbe1;
+      --warn-bg: #fff8c5;
+    }
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      background: #0f1117;
-      color: #e1e4e8;
+      background: var(--bg);
+      color: var(--text);
       line-height: 1.5;
       min-height: 100vh;
     }
-    a { color: #58a6ff; text-decoration: none; }
+    a { color: var(--accent); text-decoration: none; }
     a:hover { text-decoration: underline; }
     a:focus-visible, button:focus-visible, textarea:focus-visible, input:focus-visible, select:focus-visible {
-      outline: 2px solid #58a6ff;
+      outline: 2px solid var(--accent);
       outline-offset: 2px;
     }
     .header {
-      background: #161b22;
-      border-bottom: 1px solid #30363d;
+      background: var(--header);
+      border-bottom: 1px solid var(--border);
       position: sticky;
       top: 0;
       z-index: 100;
@@ -39,7 +84,7 @@
       display: flex;
       align-items: center;
       gap: 0.5rem;
-      color: #58a6ff;
+      color: var(--accent);
       text-decoration: none;
       font-weight: 700;
       font-size: 1.1rem;
@@ -48,11 +93,11 @@
     .logo:hover { text-decoration: none; }
     .logo svg { flex-shrink: 0; }
     .back {
-      color: #8b949e;
+      color: var(--muted);
       font-size: 0.8rem;
       white-space: nowrap;
     }
-    .back:hover { color: #e1e4e8; text-decoration: none; }
+    .back:hover { color: var(--text); text-decoration: none; }
     .nav {
       display: flex;
       gap: 0.25rem;
@@ -68,30 +113,32 @@
       border-radius: 6px;
       border: none;
       background: transparent;
-      color: #8b949e;
+      color: var(--muted);
       font: inherit;
       font-size: 0.85rem;
       white-space: nowrap;
       cursor: pointer;
       transition: all 0.15s;
     }
-    .nav [role="tab"]:hover { color: #e1e4e8; background: #21262d; }
-    .nav [role="tab"][aria-selected="true"] { color: #58a6ff; background: #1c2128; }
-    .lang { display: flex; gap: 4px; flex-shrink: 0; }
-    .lang button {
+    .nav [role="tab"]:hover { color: var(--text); background: var(--surface); }
+    .nav [role="tab"][aria-selected="true"] { color: var(--accent); background: var(--surface-2); }
+    .switches { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+    .lang, .theme { display: flex; gap: 4px; flex-shrink: 0; }
+    .lang button, .theme button {
       background: transparent;
       border: 1px solid transparent;
-      color: #8b949e;
+      color: var(--muted);
       padding: 4px 10px;
       border-radius: 6px;
       cursor: pointer;
       font: inherit;
       font-size: 12px;
     }
-    .lang button.active, .lang button:hover {
-      color: #e1e4e8;
-      background: #21262d;
-      border-color: #30363d;
+    .lang button.active, .lang button:hover,
+    .theme button.active, .theme button:hover {
+      color: var(--text);
+      background: var(--surface);
+      border-color: var(--border);
     }
     .main {
       max-width: 1400px;
@@ -101,28 +148,28 @@
     }
     [role="tabpanel"] { display: none; }
     [role="tabpanel"].active { display: flex; flex-direction: column; gap: 1rem; }
-    .page-header h1 { font-size: 1.5rem; color: #e1e4e8; font-weight: 600; }
-    .page-header p { color: #8b949e; margin-top: 0.25rem; }
+    .page-header h1 { font-size: 1.5rem; color: var(--text); font-weight: 600; }
+    .page-header p { color: var(--muted); margin-top: 0.25rem; }
     .toolbar { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
     .toolbar-right { margin-left: auto; display: flex; gap: 0.25rem; }
     .btn {
       padding: 0.5rem 1rem;
       border-radius: 6px;
-      border: 1px solid #30363d;
-      background: #21262d;
-      color: #e1e4e8;
+      border: 1px solid var(--border);
+      background: var(--btn);
+      color: var(--text);
       cursor: pointer;
       font: inherit;
       font-size: 0.85rem;
     }
-    .btn:hover { background: #30363d; }
-    .btn-primary { background: #238636; border-color: #2ea043; color: #fff; }
-    .btn-primary:hover { background: #2ea043; }
+    .btn:hover { background: var(--btn-hover); }
+    .btn-primary { background: var(--primary); border-color: var(--primary-hover); color: #fff; }
+    .btn-primary:hover { background: var(--primary-hover); }
     .editors { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
     .editor-panel { display: flex; flex-direction: column; gap: 0.5rem; min-width: 0; }
     .editor-panel label, label.field-label {
       font-size: 0.8rem;
-      color: #8b949e;
+      color: var(--muted);
       text-transform: uppercase;
       letter-spacing: 0.05em;
       font-weight: 600;
@@ -130,10 +177,10 @@
     textarea, input[type="text"], select, pre.out {
       width: 100%;
       padding: 12px;
-      border: 1px solid #30363d;
+      border: 1px solid var(--border);
       border-radius: 6px;
-      background: #0d1117;
-      color: #e1e4e8;
+      background: var(--input);
+      color: var(--text);
       font-family: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace;
       font-size: 0.85rem;
     }
@@ -143,9 +190,9 @@
       border-radius: 6px;
       font-size: 0.85rem;
     }
-    .msg.err { background: #3d1f1f; border: 1px solid #f85149; color: #f85149; }
-    .msg.ok { background: #16351f; border: 1px solid #2ea043; color: #3fb950; }
-    .msg.info { background: #161b22; border: 1px solid #30363d; color: #8b949e; }
+    .msg.err { background: var(--err-bg); border: 1px solid var(--danger); color: var(--danger); }
+    .msg.ok { background: var(--ok-bg); border: 1px solid var(--primary-hover); color: var(--ok); }
+    .msg.info { background: var(--header); border: 1px solid var(--border); color: var(--muted); }
     .convert-row { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; }
     .convert-row .field-label { margin: 0; }
     select { width: auto; min-width: 8rem; }
@@ -158,20 +205,20 @@
       word-break: break-all;
     }
     .diff-list { list-style: none; display: flex; flex-direction: column; gap: 6px; font-family: ui-monospace, Consolas, monospace; font-size: 0.85rem; }
-    .diff-list li { padding: 8px 10px; border-radius: 6px; border: 1px solid #30363d; background: #161b22; }
-    .diff-add { border-color: #2ea043 !important; background: #16351f; }
-    .diff-del { border-color: #f85149 !important; background: #3d1f1f; }
-    .diff-chg { border-color: #d29922 !important; background: #3d2f12; }
+    .diff-list li { padding: 8px 10px; border-radius: 6px; border: 1px solid var(--border); background: var(--header); }
+    .diff-add { border-color: var(--primary-hover) !important; background: var(--ok-bg); }
+    .diff-del { border-color: var(--danger) !important; background: var(--err-bg); }
+    .diff-chg { border-color: var(--warn) !important; background: var(--warn-bg); }
     .hidden { display: none !important; }
     .seo {
       margin-top: 1rem;
       padding: 1.5rem;
-      background: #161b22;
+      background: var(--header);
       border-radius: 8px;
-      border: 1px solid #30363d;
+      border: 1px solid var(--border);
     }
     .seo h2 { font-size: 1.1rem; margin-bottom: 0.5rem; }
-    .seo p, .seo li { color: #8b949e; line-height: 1.6; }
+    .seo p, .seo li { color: var(--muted); line-height: 1.6; }
     .seo ul { padding-left: 1.5rem; margin-top: 0.5rem; }
     @media (max-width: 768px) {
       .header-inner { height: auto; flex-wrap: wrap; padding: 8px 1rem; gap: 8px; }
@@ -201,9 +248,15 @@
         <button type="button" role="tab" id="tab-cmp" aria-selected="false" aria-controls="panel-cmp" data-i18n="tabDiff">Diff</button>
         <button type="button" role="tab" id="tab-path" aria-selected="false" aria-controls="panel-path" data-i18n="tabPath">JSONPath</button>
       </div>
-      <div class="lang">
-        <button type="button" data-lang="zh">中文</button>
-        <button type="button" data-lang="en">EN</button>
+      <div class="switches">
+        <div class="lang">
+          <button type="button" data-lang="zh">中文</button>
+          <button type="button" data-lang="en">EN</button>
+        </div>
+        <div class="theme" role="group" aria-label="Theme">
+          <button type="button" data-theme-set="light" data-i18n="themeLight">Light</button>
+          <button type="button" data-theme-set="dark" data-i18n="themeDark">Dark</button>
+        </div>
       </div>
     </div>
   </header>
@@ -358,6 +411,8 @@
 var I18N = {
   en: {
     "document.title": "JSON Tools",
+    themeLight: "Light",
+    themeDark: "Dark",
     back: "← All tools",
     tabFmt: "Formatter",
     tabVal: "Validator",
@@ -411,6 +466,8 @@ var I18N = {
   },
   zh: {
     "document.title": "JSON 工具",
+    themeLight: "浅色",
+    themeDark: "深色",
     back: "← 返回工具列表",
     tabFmt: "格式化",
     tabVal: "校验",

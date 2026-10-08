@@ -3,9 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script src="../assets/theme.js"></script>
   <title>Free Online Calculators - CalcTools</title>
   <style>
-    :root {
+    :root, html[data-theme="light"] {
+      color-scheme: light;
       --primary: #2563eb;
       --primary-dark: #1d4ed8;
       --bg: #f8fafc;
@@ -13,8 +15,32 @@
       --text: #1e293b;
       --text-muted: #64748b;
       --border: #e2e8f0;
+      --input: #ffffff;
       --radius: 12px;
       --shadow: 0 1px 3px rgba(0,0,0,0.1);
+      --result-bg: #f0f9ff;
+      --result-border: #bae6fd;
+      --err-bg: #fef2f2;
+      --err-border: #fecaca;
+      --err-text: #b91c1c;
+    }
+    html[data-theme="dark"] {
+      color-scheme: dark;
+      --primary: #3b82f6;
+      --primary-dark: #2563eb;
+      --bg: #0f172a;
+      --card-bg: #1e293b;
+      --text: #f1f5f9;
+      --text-muted: #94a3b8;
+      --border: #334155;
+      --input: #0f172a;
+      --radius: 12px;
+      --shadow: 0 1px 3px rgba(0,0,0,0.35);
+      --result-bg: #0c4a6e;
+      --result-border: #0369a1;
+      --err-bg: #450a0a;
+      --err-border: #7f1d1d;
+      --err-text: #fca5a5;
     }
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
@@ -69,6 +95,8 @@
       color: var(--primary);
       font-weight: 600;
     }
+    .switches { display: flex; align-items: center; gap: 8px; }
+    .lang, .theme { display: flex; gap: 2px; }
     main { padding: 2rem 1rem 3rem; }
     .crumb { font-size: 0.875rem; color: var(--text-muted); margin-bottom: 1rem; }
     .crumb a { color: var(--text-muted); }
@@ -133,7 +161,7 @@
       border-radius: 8px;
       font-size: 1rem;
       font-family: inherit;
-      background: #fff;
+      background: var(--input);
       color: var(--text);
       transition: border-color 0.2s;
     }
@@ -162,19 +190,19 @@
     .result {
       margin-top: 1.5rem;
       padding: 1rem;
-      background: #f0f9ff;
+      background: var(--result-bg);
       border-radius: 8px;
-      border: 1px solid #bae6fd;
+      border: 1px solid var(--result-border);
       font-size: 1.125rem;
       text-align: center;
     }
     .result strong { color: var(--primary); font-size: 1.5rem; }
     .result.err {
-      background: #fef2f2;
-      border-color: #fecaca;
-      color: #b91c1c;
+      background: var(--err-bg);
+      border-color: var(--err-border);
+      color: var(--err-text);
     }
-    .result.err strong { color: #b91c1c; }
+    .result.err strong { color: var(--err-text); }
     .hint { font-size: 0.85rem; color: var(--text-muted); margin-top: 0.5rem; }
     hr.split { border: none; border-top: 1px solid var(--border); margin: 1.25rem 0; }
     footer {
@@ -214,8 +242,16 @@
       </a>
       <div class="nav-links">
         <a href="../index.html" data-i18n="back">Home</a>
+        <div class="switches">
+        <div class="lang">
         <button type="button" data-lang="en">EN</button>
         <button type="button" data-lang="zh">中文</button>
+        </div>
+        <div class="theme" role="group" aria-label="Theme">
+          <button type="button" data-theme-set="light" data-i18n="themeLight">Light</button>
+          <button type="button" data-theme-set="dark" data-i18n="themeDark">Dark</button>
+        </div>
+        </div>
       </div>
     </nav>
   </header>
@@ -453,6 +489,8 @@
     var I18N = {
       en: {
         "document.title": "Free Online Calculators - CalcTools",
+        themeLight: "Light",
+        themeDark: "Dark",
         back: "Home",
         "home.h1": "Free Online Calculators",
         "home.intro": "Free online calculators for math, finance, health, and everyday use.",
@@ -562,6 +600,8 @@
       },
       zh: {
         "document.title": "免费在线计算器 - CalcTools",
+        themeLight: "浅色",
+        themeDark: "深色",
         back: "返回首页",
         "home.h1": "免费在线计算器",
         "home.intro": "免费在线计算器：数学、金融、健康、日常工具。",
