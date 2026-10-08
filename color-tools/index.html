@@ -1,131 +1,229 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>颜色工具</title>
+  <title>Color Tools</title>
   <style>
     :root {
-      color-scheme: light dark;
-      --bg: #f4f1ea;
-      --fg: #1c1915;
-      --muted: #5c564c;
-      --card: #fffdf8;
-      --line: #d9d2c5;
-      --accent: #1f4d3a;
-      --accent-soft: #8fbfa6;
-      --pass: #15803d;
-      --fail: #b91c1c;
-      --radius: 10px;
+      color-scheme: dark;
+      --bg: #0f0f0f;
+      --surface: #1a1a1a;
+      --border: #2a2a2a;
+      --text: #f5f5f5;
+      --text-muted: #888;
+      --primary: #6366f1;
+      --primary-hover: #818cf8;
+      --radius: 12px;
+      --pass: #22c55e;
+      --fail: #ef4444;
     }
-    @media (prefers-color-scheme: dark) {
-      :root {
-        --bg: #161411;
-        --fg: #f3eee4;
-        --muted: #b4ab9c;
-        --card: #211d18;
-        --line: #3a342c;
-        --accent: #8fbfa6;
-        --accent-soft: #1f4d3a;
-      }
-    }
-    * { box-sizing: border-box; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { max-width: 100%; overflow-x: hidden; }
     body {
-      margin: 0;
-      font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       background: var(--bg);
-      color: var(--fg);
-      line-height: 1.5;
+      color: var(--text);
+      line-height: 1.6;
+      min-height: 100vh;
     }
-    a { color: var(--accent); }
-    a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-    .wrap { max-width: 960px; margin: 0 auto; padding: 24px 20px 64px; }
-    .top { margin-bottom: 24px; }
-    .top a.back { font-size: 0.95rem; }
-    h1 { font-size: 1.6rem; font-weight: 650; margin: 12px 0 4px; }
-    .lead { color: var(--muted); margin: 0 0 20px; }
-    .tabs {
+    a { color: var(--primary); text-decoration: none; }
+    a:hover { color: var(--primary-hover); }
+    a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible {
+      outline: 2px solid var(--primary);
+      outline-offset: 2px;
+    }
+    .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+    .nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(15, 15, 15, 0.9);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-inner {
       display: flex;
       flex-wrap: wrap;
-      gap: 6px;
-      margin-bottom: 20px;
-      border-bottom: 1px solid var(--line);
-      padding-bottom: 12px;
+      align-items: center;
+      gap: 8px 16px;
+      min-height: 64px;
+      padding: 8px 0;
     }
-    .tabs [role="tab"] {
+    .nav-brand {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px 12px;
+    }
+    .logo {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--text);
+      white-space: nowrap;
+    }
+    .logo:hover { color: var(--text); }
+    .home-link {
+      display: inline-flex;
+      align-items: center;
+      min-height: 44px;
+      padding: 0 12px;
+      border-radius: 8px;
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+    .home-link:hover { color: var(--text); background: var(--surface); }
+    .nav-tools {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      flex: 1 1 320px;
+      min-width: 0;
+      justify-content: flex-end;
+    }
+    .nav-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      flex: 1 1 auto;
+      min-width: min(100%, 260px);
+    }
+    .lang { display: flex; gap: 4px; flex-shrink: 0; }
+    .nav-tabs [role="tab"] {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 44px;
       padding: 8px 14px;
+      border: none;
+      border-radius: 8px;
+      background: transparent;
+      color: var(--text-muted);
+      font: inherit;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .nav-tabs [role="tab"]:hover,
+    .nav-tabs [role="tab"][aria-selected="true"] {
+      color: var(--text);
+      background: var(--surface);
+    }
+    .lang button {
+      min-height: 44px;
+      min-width: 44px;
+      padding: 6px 10px;
       border: 1px solid transparent;
       border-radius: 8px;
       background: transparent;
-      color: var(--muted);
+      color: var(--text-muted);
       font: inherit;
+      font-size: 13px;
       cursor: pointer;
     }
-    .tabs [role="tab"]:hover { color: var(--fg); background: var(--card); }
-    .tabs [role="tab"][aria-selected="true"] {
-      color: var(--fg);
-      border-color: var(--line);
-      background: var(--card);
-      font-weight: 600;
+    .lang button.active, .lang button:hover {
+      color: var(--text);
+      background: var(--surface);
+      border-color: var(--border);
     }
-    .tabs [role="tab"]:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+    main.container { padding-top: 24px; padding-bottom: 24px; }
     [role="tabpanel"] { display: none; }
     [role="tabpanel"].active { display: block; }
-    .card {
-      background: var(--card);
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-      padding: 20px;
-    }
-    .panel-title { font-size: 1.15rem; font-weight: 600; margin: 0 0 6px; }
-    .panel-desc { color: var(--muted); font-size: 0.9rem; margin: 0 0 20px; }
-    label.field-label { display: block; font-size: 0.85rem; font-weight: 600; color: var(--muted); margin-bottom: 6px; }
-    input[type="text"], input[type="number"], select {
-      width: 100%;
-      padding: 10px 12px;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      background: var(--bg);
-      color: var(--fg);
-      font: inherit;
-    }
-    input:focus-visible, select:focus-visible, button:focus-visible {
-      outline: 2px solid var(--accent);
-      outline-offset: 2px;
-    }
+    .page-header { text-align: center; padding: 24px 0 32px; }
+    .page-header h1 { font-size: 2rem; margin-bottom: 8px; }
+    .page-header p { color: var(--text-muted); font-size: 1.1rem; }
     .btn {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 6px;
-      padding: 9px 16px;
+      gap: 8px;
+      min-height: 44px;
+      padding: 10px 20px;
       border-radius: 8px;
-      border: 1px solid var(--line);
-      background: var(--card);
-      color: var(--fg);
-      font: inherit;
+      border: none;
+      font-size: 14px;
+      font-weight: 500;
+      font-family: inherit;
       cursor: pointer;
+      transition: all 0.2s;
     }
-    .btn:hover { border-color: var(--accent); }
-    .btn-primary { background: var(--accent); color: #fff; border-color: var(--accent); }
-    .btn-primary:hover { filter: brightness(1.08); }
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-primary:hover { background: var(--primary-hover); }
+    .btn-outline {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text);
+    }
+    .btn-outline:hover { border-color: var(--primary); color: var(--primary); }
     .btn.copied { border-color: var(--pass); color: var(--pass); }
-    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-    @media (max-width: 720px) { .grid-2 { grid-template-columns: 1fr; } }
-    .picker-preview { width: 100%; aspect-ratio: 1; border-radius: var(--radius); border: 1px solid var(--line); }
-    .native-color { width: 72px; height: 44px; border: 1px solid var(--line); border-radius: 8px; cursor: pointer; padding: 2px; background: var(--bg); }
-    .stack { display: flex; flex-direction: column; gap: 14px; }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+    }
+    label.field-label, .field-label {
+      display: block;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+    input[type="text"], input[type="number"], input[type="range"] {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 14px;
+      color: var(--text);
+      font-size: 14px;
+      font-family: inherit;
+      outline: none;
+      width: 100%;
+    }
+    input:focus, select:focus { border-color: var(--primary); }
+    select {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 16px;
+      color: var(--text);
+      font-size: 14px;
+      font-family: inherit;
+      outline: none;
+      min-height: 44px;
+      width: auto;
+      max-width: 100%;
+    }
+    #gradType { width: 100%; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+    .picker-preview { width: 100%; aspect-ratio: 1; border-radius: var(--radius); }
+    .native-color {
+      width: 60px;
+      height: 44px;
+      border: none;
+      cursor: pointer;
+      background: none;
+      padding: 0;
+    }
+    .stack { display: flex; flex-direction: column; gap: 16px; }
     .row { display: flex; gap: 8px; align-items: center; }
-    .row input[type="text"] { flex: 1; }
+    .row input[type="text"] { flex: 1; min-width: 0; }
     .triple { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
-    .triple small { color: var(--muted); font-size: 0.75rem; }
-    .toolbar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 16px; }
+    .triple small { color: var(--text-muted); font-size: 12px; }
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 32px;
+    }
     .palette-bar {
       display: flex;
-      height: 280px;
+      height: 320px;
       border-radius: var(--radius);
       overflow: hidden;
-      border: 1px solid var(--line);
     }
     .palette-bar button {
       flex: 1;
@@ -134,57 +232,71 @@
       display: flex;
       align-items: flex-end;
       justify-content: center;
-      padding: 12px;
+      padding: 16px;
       min-width: 0;
-      transition: flex 0.25s;
+      min-height: 44px;
+      transition: flex 0.3s;
     }
-    .palette-bar button:hover, .palette-bar button:focus-visible { flex: 1.35; outline: none; }
+    .palette-bar button:hover, .palette-bar button:focus-visible { flex: 1.5; outline: none; }
     .palette-bar button span {
-      background: rgba(0,0,0,0.55);
+      background: rgba(0,0,0,0.6);
       color: #fff;
-      padding: 6px 10px;
+      padding: 8px 12px;
       border-radius: 6px;
-      font-size: 12px;
+      font-size: 13px;
       font-family: ui-monospace, monospace;
+      backdrop-filter: blur(4px);
     }
-    .gradient-preview { min-height: 200px; border-radius: var(--radius); border: 1px solid var(--line); margin-bottom: 16px; }
-    .swatch-row { display: flex; gap: 4px; margin-top: 12px; }
+    .gradient-layout { display: grid; grid-template-columns: 1fr 1.5fr; gap: 24px; }
+    .gradient-preview { min-height: 300px; border-radius: var(--radius); }
+    .swatch-row { display: flex; gap: 4px; margin-top: 4px; }
     .swatch-row button {
       flex: 1;
-      height: 44px;
-      border: 1px solid var(--line);
+      height: 48px;
+      min-width: 0;
+      border: none;
       border-radius: 6px;
       cursor: pointer;
-      font-size: 10px;
+      font-size: 11px;
       color: #fff;
-      text-shadow: 0 1px 2px rgba(0,0,0,0.6);
+      text-shadow: 0 1px 2px rgba(0,0,0,0.5);
     }
-    .contrast-preview { min-height: 200px; display: flex; flex-direction: column; justify-content: center; gap: 12px; border-radius: var(--radius); padding: 24px; border: 1px solid var(--line); }
-    .ratio-big { font-size: 2.2rem; font-weight: 700; text-align: center; margin: 16px 0; }
-    .wcag-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
-    .wcag-list li { display: flex; align-items: center; gap: 10px; font-size: 0.9rem; }
+    .contrast-preview {
+      min-height: 240px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 16px;
+      border-radius: var(--radius);
+      padding: 24px;
+    }
+    .contrast-preview h3 { font-size: 1.5rem; font-weight: 600; }
+    .ratio-big { font-size: 2.5rem; font-weight: 700; text-align: center; }
+    .wcag-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
+    .wcag-list li { display: flex; align-items: center; gap: 10px; font-size: 14px; }
     .wcag-list .mark { font-weight: 700; width: 1.2em; text-align: center; }
     .wcag-list .pass { color: var(--pass); }
     .wcag-list .fail { color: var(--fail); }
     .drop-zone {
       position: relative;
-      min-height: 260px;
+      min-height: 320px;
       display: flex;
       align-items: center;
       justify-content: center;
-      border: 2px dashed var(--line);
+      border: 2px dashed var(--border);
       border-radius: var(--radius);
       text-align: center;
-      color: var(--muted);
+      color: var(--text-muted);
+      overflow: hidden;
     }
-    .drop-zone.dragging { border-color: var(--accent); background: var(--card); }
+    .drop-zone.dragging { border-color: var(--primary); }
     .drop-zone input[type="file"] {
       position: absolute;
       inset: 0;
       opacity: 0;
       cursor: pointer;
     }
-    .drop-zone img { max-width: 100%; max-height: 320px; object-fit: contain; border-radius: 8px; }
+    .drop-zone img { max-width: 100%; max-height: 400px; object-fit: contain; border-radius: 8px; }
     .color-list { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
     .color-list button {
       display: flex;
@@ -192,22 +304,24 @@
       gap: 12px;
       width: 100%;
       text-align: left;
+      min-height: 44px;
       padding: 10px 12px;
-      border: 1px solid var(--line);
+      border: none;
       border-radius: 8px;
-      background: var(--bg);
+      background: transparent;
       cursor: pointer;
       font: inherit;
-      color: var(--fg);
+      color: var(--text);
     }
-    .color-list .dot { width: 36px; height: 36px; border-radius: 6px; border: 1px solid var(--line); flex-shrink: 0; }
+    .color-list button:hover { background: var(--bg); }
+    .color-list .dot { width: 36px; height: 36px; border-radius: 6px; flex-shrink: 0; }
     .color-list code { flex: 1; font-family: ui-monospace, monospace; }
     .toast {
       position: fixed;
       bottom: 20px;
       left: 50%;
       transform: translateX(-50%);
-      background: var(--fg);
+      background: var(--text);
       color: var(--bg);
       padding: 10px 18px;
       border-radius: 8px;
@@ -215,49 +329,83 @@
       opacity: 0;
       pointer-events: none;
       transition: opacity 0.2s;
+      z-index: 200;
     }
     .toast.show { opacity: 1; }
     .css-box {
       display: flex;
       flex-wrap: wrap;
-      gap: 10px;
+      gap: 12px;
       align-items: center;
       background: var(--bg);
-      padding: 12px;
+      padding: 12px 16px;
       border-radius: 8px;
-      border: 1px solid var(--line);
     }
-    .css-box code { flex: 1; font-size: 0.85rem; word-break: break-all; font-family: ui-monospace, monospace; color: var(--accent); }
-    .color-pair { display: flex; gap: 10px; align-items: flex-end; }
-    .color-pair > div { flex: 1; }
-    .color-pair input[type="color"] { width: 44px; height: 40px; border: 1px solid var(--line); border-radius: 8px; cursor: pointer; }
-    .color-pair .row { margin-top: 6px; }
+    .css-box code { flex: 1; min-width: 0; font-size: 13px; word-break: break-all; font-family: ui-monospace, monospace; color: var(--primary); }
+    .color-pair { display: flex; gap: 12px; align-items: flex-end; }
+    .color-pair > div { flex: 1; min-width: 0; }
+    .color-pair input[type="color"] {
+      width: 40px;
+      height: 40px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      background: none;
+      padding: 0;
+      flex-shrink: 0;
+    }
+    .empty-hint { color: var(--text-muted); margin: 0; font-size: 0.9rem; }
+    .footer {
+      text-align: center;
+      padding: 32px 0;
+      color: var(--text-muted);
+      font-size: 14px;
+      border-top: 1px solid var(--border);
+      margin-top: 64px;
+    }
+    @media (max-width: 768px) {
+      .container { padding: 0 16px; }
+      .grid-2, .gradient-layout { grid-template-columns: 1fr; }
+      .nav-tools { justify-content: flex-start; width: 100%; }
+      .color-pair { flex-wrap: wrap; }
+      .page-header h1 { font-size: 1.6rem; }
+      .palette-bar { height: 220px; }
+    }
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <header class="top">
-      <a class="back" href="../index.html">← 全部工具</a>
-      <h1>颜色工具</h1>
-      <p class="lead">选择、配色、渐变、对比度与图片取色，全部在本地浏览器完成。</p>
-    </header>
-
-    <div class="tabs" role="tablist" aria-label="颜色工具">
-      <button type="button" role="tab" id="tab-picker" aria-controls="panel-picker" aria-selected="true">选择器</button>
-      <button type="button" role="tab" id="tab-palette" aria-controls="panel-palette" aria-selected="false" tabindex="-1">调色板</button>
-      <button type="button" role="tab" id="tab-gradient" aria-controls="panel-gradient" aria-selected="false" tabindex="-1">渐变色</button>
-      <button type="button" role="tab" id="tab-contrast" aria-controls="panel-contrast" aria-selected="false" tabindex="-1">对比度</button>
-      <button type="button" role="tab" id="tab-extract" aria-controls="panel-extract" aria-selected="false" tabindex="-1">图片取色</button>
+  <nav class="nav">
+    <div class="container nav-inner">
+      <div class="nav-brand">
+        <span class="logo">🎨 Color Tools</span>
+        <a class="home-link" href="../index.html" data-i18n="home">Home</a>
+      </div>
+      <div class="nav-tools">
+        <div class="nav-tabs" role="tablist" aria-label="Color tools">
+          <button type="button" role="tab" id="tab-picker" aria-controls="panel-picker" aria-selected="true" data-i18n="tabPicker">Picker</button>
+          <button type="button" role="tab" id="tab-palette" aria-controls="panel-palette" aria-selected="false" tabindex="-1" data-i18n="tabPalette">Palette</button>
+          <button type="button" role="tab" id="tab-gradient" aria-controls="panel-gradient" aria-selected="false" tabindex="-1" data-i18n="tabGradient">Gradient</button>
+          <button type="button" role="tab" id="tab-contrast" aria-controls="panel-contrast" aria-selected="false" tabindex="-1" data-i18n="tabContrast">Contrast</button>
+          <button type="button" role="tab" id="tab-extract" aria-controls="panel-extract" aria-selected="false" tabindex="-1" data-i18n="tabExtract">Extract</button>
+        </div>
+        <div class="lang">
+          <button type="button" data-lang="zh">中文</button>
+          <button type="button" data-lang="en">EN</button>
+        </div>
+      </div>
     </div>
+  </nav>
 
-    <!-- 选择器 -->
+  <main class="container">
     <section id="panel-picker" class="active" role="tabpanel" aria-labelledby="tab-picker">
-      <h2 class="panel-title">颜色选择器</h2>
-      <p class="panel-desc">HEX、RGB、HSL 互转，支持系统取色器。</p>
+      <div class="page-header">
+        <h1 data-i18n="pickerTitle">Color Picker</h1>
+        <p data-i18n="pickerDesc">Convert HEX, RGB, and HSL with a live preview.</p>
+      </div>
       <div class="grid-2">
         <div class="card stack">
           <div id="pickerPreview" class="picker-preview" aria-hidden="true"></div>
-          <label class="field-label" for="pickerNative">系统取色</label>
+          <label class="field-label" for="pickerNative" data-i18n="nativePicker">System picker</label>
           <input type="color" id="pickerNative" class="native-color" value="#6366f1" />
         </div>
         <div class="stack">
@@ -265,7 +413,7 @@
             <label class="field-label" for="pickerHex">HEX</label>
             <div class="row">
               <input type="text" id="pickerHex" maxlength="7" spellcheck="false" autocomplete="off" />
-              <button type="button" class="btn" data-copy="pickerHexRaw">复制</button>
+              <button type="button" class="btn btn-outline" data-copy="pickerHexRaw" data-i18n="copy">Copy</button>
             </div>
           </div>
           <div class="card stack">
@@ -275,7 +423,7 @@
               <div><small>G</small><input type="number" id="pickerG" min="0" max="255" /></div>
               <div><small>B</small><input type="number" id="pickerB" min="0" max="255" /></div>
             </div>
-            <button type="button" class="btn" id="copyRgb">复制 rgb()</button>
+            <button type="button" class="btn btn-outline" id="copyRgb" data-i18n="copyRgb">Copy rgb()</button>
           </div>
           <div class="card stack">
             <span class="field-label">HSL</span>
@@ -284,95 +432,100 @@
               <div><small>S</small><input type="number" id="pickerS" min="0" max="100" /></div>
               <div><small>L</small><input type="number" id="pickerL" min="0" max="100" /></div>
             </div>
-            <button type="button" class="btn" id="copyHsl">复制 hsl()</button>
+            <button type="button" class="btn btn-outline" id="copyHsl" data-i18n="copyHsl">Copy hsl()</button>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- 调色板 -->
     <section id="panel-palette" role="tabpanel" aria-labelledby="tab-palette" hidden>
-      <h2 class="panel-title">调色板生成</h2>
-      <p class="panel-desc">基于种子色或随机生成和谐配色。</p>
+      <div class="page-header">
+        <h1 data-i18n="paletteTitle">Palette Generator</h1>
+        <p data-i18n="paletteDesc">Build harmonious palettes from a seed color or at random.</p>
+      </div>
       <div class="toolbar">
-        <label class="field-label" for="paletteMode" style="margin:0">方案</label>
-        <select id="paletteMode" aria-label="配色方案">
-          <option value="random">随机五色</option>
-          <option value="complementary">互补色</option>
-          <option value="analogous">类似色</option>
-          <option value="triadic">三等分色</option>
+        <label class="field-label" for="paletteMode" style="margin:0" data-i18n="paletteScheme">Scheme</label>
+        <select id="paletteMode" aria-label="Palette scheme">
+          <option value="random" data-i18n="optRandom">Random five colors</option>
+          <option value="complementary" data-i18n="optComp">Complementary</option>
+          <option value="analogous" data-i18n="optAnalog">Analogous</option>
+          <option value="triadic" data-i18n="optTriadic">Triadic</option>
         </select>
-        <label class="field-label" for="paletteSeed" style="margin:0">种子色</label>
-        <input type="color" id="paletteSeed" value="#6366f1" aria-label="种子颜色" />
-        <button type="button" class="btn btn-primary" id="paletteGenerate">生成</button>
+        <label class="field-label" for="paletteSeed" style="margin:0" data-i18n="paletteSeed">Seed color</label>
+        <input type="color" id="paletteSeed" value="#6366f1" aria-label="Seed color" />
+        <button type="button" class="btn btn-primary" id="paletteGenerate" data-i18n="generate">Generate</button>
       </div>
       <div id="paletteBar" class="palette-bar" aria-live="polite"></div>
     </section>
 
-    <!-- 渐变 -->
     <section id="panel-gradient" role="tabpanel" aria-labelledby="tab-gradient" hidden>
-      <h2 class="panel-title">CSS 渐变</h2>
-      <p class="panel-desc">预览线性或径向渐变，一键复制 CSS。</p>
-      <div id="gradientPreview" class="gradient-preview" aria-hidden="true"></div>
-      <div class="card stack">
-        <div class="color-pair">
-          <div>
-            <label class="field-label" for="gradStartText">起始色</label>
-            <div class="row">
-              <input type="color" id="gradStartPick" value="#6366f1" aria-label="起始色" />
-              <input type="text" id="gradStartText" spellcheck="false" />
+      <div class="page-header">
+        <h1 data-i18n="gradientTitle">CSS Gradient</h1>
+        <p data-i18n="gradientDesc">Preview linear or radial gradients and copy the CSS.</p>
+      </div>
+      <div class="gradient-layout">
+        <div id="gradientPreview" class="gradient-preview card" aria-hidden="true"></div>
+        <div class="card stack">
+          <div class="color-pair">
+            <div>
+              <label class="field-label" for="gradStartText" data-i18n="startColor">Start</label>
+              <div class="row">
+                <input type="color" id="gradStartPick" value="#6366f1" aria-label="Start color" />
+                <input type="text" id="gradStartText" spellcheck="false" />
+              </div>
+            </div>
+            <button type="button" class="btn btn-outline" id="gradSwap" title="Swap colors" data-i18n="swap" data-i18n-title="swapTitle">Swap</button>
+            <div>
+              <label class="field-label" for="gradEndText" data-i18n="endColor">End</label>
+              <div class="row">
+                <input type="color" id="gradEndPick" value="#ec4899" aria-label="End color" />
+                <input type="text" id="gradEndText" spellcheck="false" />
+              </div>
             </div>
           </div>
-          <button type="button" class="btn" id="gradSwap" title="交换起止色">交换</button>
-          <div>
-            <label class="field-label" for="gradEndText">结束色</label>
-            <div class="row">
-              <input type="color" id="gradEndPick" value="#ec4899" aria-label="结束色" />
-              <input type="text" id="gradEndText" spellcheck="false" />
+          <div class="toolbar" style="justify-content:stretch;margin-bottom:0">
+            <div style="flex:1;min-width:140px">
+              <label class="field-label" for="gradType" data-i18n="gradType">Type</label>
+              <select id="gradType">
+                <option value="linear" data-i18n="optLinear">Linear linear-gradient</option>
+                <option value="radial" data-i18n="optRadial">Radial radial-gradient</option>
+              </select>
+            </div>
+            <div id="gradAngleWrap" style="flex:1;min-width:140px">
+              <label class="field-label" for="gradAngle"><span data-i18n="angle">Angle</span> <span id="gradAngleVal">90</span>°</label>
+              <input type="range" id="gradAngle" min="0" max="360" value="90" />
             </div>
           </div>
-        </div>
-        <div class="toolbar">
-          <div>
-            <label class="field-label" for="gradType">类型</label>
-            <select id="gradType">
-              <option value="linear">线性 linear-gradient</option>
-              <option value="radial">径向 radial-gradient</option>
-            </select>
+          <div class="css-box">
+            <code id="gradCss"></code>
+            <button type="button" class="btn btn-primary" id="copyGradCss" data-i18n="copyCss">Copy CSS</button>
           </div>
-          <div id="gradAngleWrap">
-            <label class="field-label" for="gradAngle">角度 <span id="gradAngleVal">90</span>°</label>
-            <input type="range" id="gradAngle" min="0" max="360" value="90" />
-          </div>
+          <div class="swatch-row" id="gradSteps" aria-label="Gradient steps"></div>
         </div>
-        <div class="css-box">
-          <code id="gradCss"></code>
-          <button type="button" class="btn btn-primary" id="copyGradCss">复制 CSS</button>
-        </div>
-        <div class="swatch-row" id="gradSteps" aria-label="渐变中间色"></div>
       </div>
     </section>
 
-    <!-- 对比度 -->
     <section id="panel-contrast" role="tabpanel" aria-labelledby="tab-contrast" hidden>
-      <h2 class="panel-title">对比度检查（WCAG）</h2>
-      <p class="panel-desc">检测文字与背景对比度是否满足无障碍标准。</p>
+      <div class="page-header">
+        <h1 data-i18n="contrastTitle">Contrast Checker (WCAG)</h1>
+        <p data-i18n="contrastDesc">Check whether text and background meet accessibility contrast ratios.</p>
+      </div>
       <div class="grid-2">
-        <div id="contrastPreview" class="contrast-preview">
-          <h3 style="margin:0;font-size:1.35rem">示例标题 Sample</h3>
-          <p style="margin:0">这是一段用于预览的正文。The quick brown fox jumps over the lazy dog.</p>
-          <small style="opacity:0.85">小号文字 Small text</small>
+        <div id="contrastPreview" class="contrast-preview card">
+          <h3 style="margin:0;font-size:1.5rem" data-i18n="previewH">Sample heading</h3>
+          <p style="margin:0" data-i18n="previewP">Preview body text. The quick brown fox jumps over the lazy dog.</p>
+          <small style="opacity:0.85" data-i18n="previewS">Small text</small>
         </div>
         <div class="card stack">
           <div>
-            <label class="field-label" for="contrastFgText">前景色（文字）</label>
+            <label class="field-label" for="contrastFgText" data-i18n="fgColor">Foreground (text)</label>
             <div class="row">
               <input type="color" id="contrastFgPick" value="#ffffff" />
               <input type="text" id="contrastFgText" value="#ffffff" spellcheck="false" />
             </div>
           </div>
           <div>
-            <label class="field-label" for="contrastBgText">背景色</label>
+            <label class="field-label" for="contrastBgText" data-i18n="bgColor">Background</label>
             <div class="row">
               <input type="color" id="contrastBgPick" value="#6366f1" />
               <input type="text" id="contrastBgText" value="#6366f1" spellcheck="false" />
@@ -384,543 +537,715 @@
       </div>
     </section>
 
-    <!-- 图片取色 -->
     <section id="panel-extract" role="tabpanel" aria-labelledby="tab-extract" hidden>
-      <h2 class="panel-title">图片颜色提取</h2>
-      <p class="panel-desc">上传或拖入图片，通过 Canvas 采样主色。</p>
+      <div class="page-header">
+        <h1 data-i18n="extractTitle">Image Color Extract</h1>
+        <p data-i18n="extractDesc">Upload or drop an image to sample dominant colors in the browser.</p>
+      </div>
       <div class="grid-2">
         <div id="dropZone" class="drop-zone card">
           <div id="dropHint">
-            <p>将图片拖到此处，或点击选择文件</p>
-            <p><small>支持常见图片格式，处理在本地完成</small></p>
+            <p data-i18n="dropHint">Drop an image here, or click to choose a file</p>
+            <p><small data-i18n="dropHintSub">Common image formats. Processing stays in the browser.</small></p>
           </div>
-          <img id="extractImg" alt="已上传的图片预览" hidden />
-          <input type="file" id="extractFile" accept="image/*" aria-label="选择图片" />
+          <img id="extractImg" alt="Uploaded image preview" hidden />
+          <input type="file" id="extractFile" accept="image/*" aria-label="Choose image" />
         </div>
         <div class="card">
-          <h3 class="panel-title" style="font-size:1rem">提取结果</h3>
+          <h3 class="field-label" style="font-size:1rem;color:var(--text)" data-i18n="extractResults">Results</h3>
           <div id="extractColors" class="color-list" aria-live="polite"></div>
         </div>
       </div>
     </section>
-  </div>
-  <div class="toast" id="toast" role="status" aria-live="polite">已复制</div>
+  </main>
 
+  <footer class="footer">
+    <div class="container">
+      <p data-i18n="footer">© 2026 Color Tools — free online color toolkit</p>
+    </div>
+  </footer>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="../assets/i18n.js"></script>
   <script>
-(function () {
-  'use strict';
-
-  function toast(msg) {
-    var el = document.getElementById('toast');
-    el.textContent = msg;
-    el.classList.add('show');
-    clearTimeout(toast._t);
-    toast._t = setTimeout(function () { el.classList.remove('show'); }, 1600);
-  }
-
-  function copyText(text) {
-    if (navigator.clipboard && window.isSecureContext) {
-      return navigator.clipboard.writeText(text).then(function () {
-        toast('已复制到剪贴板');
-        return true;
-      }).catch(fallback);
+  var I18N = {
+    en: {
+      "document.title": "Color Tools",
+      home: "Home",
+      tabsAria: "Color tools",
+      tabPicker: "Picker",
+      tabPalette: "Palette",
+      tabGradient: "Gradient",
+      tabContrast: "Contrast",
+      tabExtract: "Extract",
+      pickerTitle: "Color Picker",
+      pickerDesc: "Convert HEX, RGB, and HSL with a live preview.",
+      nativePicker: "System picker",
+      copy: "Copy",
+      copyRgb: "Copy rgb()",
+      copyHsl: "Copy hsl()",
+      paletteTitle: "Palette Generator",
+      paletteDesc: "Build harmonious palettes from a seed color or at random.",
+      paletteScheme: "Scheme",
+      optRandom: "Random five colors",
+      optComp: "Complementary",
+      optAnalog: "Analogous",
+      optTriadic: "Triadic",
+      paletteSeed: "Seed color",
+      generate: "Generate",
+      gradientTitle: "CSS Gradient",
+      gradientDesc: "Preview linear or radial gradients and copy the CSS.",
+      startColor: "Start",
+      endColor: "End",
+      swap: "Swap",
+      swapTitle: "Swap start and end colors",
+      gradType: "Type",
+      optLinear: "Linear linear-gradient",
+      optRadial: "Radial radial-gradient",
+      angle: "Angle",
+      copyCss: "Copy CSS",
+      contrastTitle: "Contrast Checker (WCAG)",
+      contrastDesc: "Check whether text and background meet accessibility contrast ratios.",
+      previewH: "Sample heading",
+      previewP: "Preview body text. The quick brown fox jumps over the lazy dog.",
+      previewS: "Small text",
+      fgColor: "Foreground (text)",
+      bgColor: "Background",
+      wcagAA: "AA normal text (≥4.5:1)",
+      wcagAAA: "AAA normal text (≥7:1)",
+      wcagAALarge: "AA large text (≥3:1)",
+      wcagAAALarge: "AAA large text (≥4.5:1)",
+      wcagPass: "Pass",
+      wcagFail: "Fail",
+      extractTitle: "Image Color Extract",
+      extractDesc: "Upload or drop an image to sample dominant colors in the browser.",
+      dropHint: "Drop an image here, or click to choose a file",
+      dropHintSub: "Common image formats. Processing stays in the browser.",
+      extractResults: "Results",
+      extractEmpty: "No results yet",
+      extractImgAlt: "Uploaded image preview",
+      extractFileAria: "Choose image",
+      copyColorAria: "Copy color",
+      footer: "© 2026 Color Tools — free online color toolkit",
+      toastCopied: "Copied to clipboard",
+      toastCopyFail: "Copy failed. Select the text manually.",
+      toastNeedImage: "Please choose an image file",
+      toastBadImage: "Could not read the image"
+    },
+    zh: {
+      "document.title": "颜色工具",
+      home: "全部工具",
+      tabsAria: "颜色工具",
+      tabPicker: "选择器",
+      tabPalette: "调色板",
+      tabGradient: "渐变色",
+      tabContrast: "对比度",
+      tabExtract: "图片取色",
+      pickerTitle: "颜色选择器",
+      pickerDesc: "HEX、RGB、HSL 互转，支持系统取色器。",
+      nativePicker: "系统取色",
+      copy: "复制",
+      copyRgb: "复制 rgb()",
+      copyHsl: "复制 hsl()",
+      paletteTitle: "调色板生成",
+      paletteDesc: "基于种子色或随机生成和谐配色。",
+      paletteScheme: "方案",
+      optRandom: "随机五色",
+      optComp: "互补色",
+      optAnalog: "类似色",
+      optTriadic: "三等分色",
+      paletteSeed: "种子色",
+      generate: "生成",
+      gradientTitle: "CSS 渐变",
+      gradientDesc: "预览线性或径向渐变，一键复制 CSS。",
+      startColor: "起始色",
+      endColor: "结束色",
+      swap: "交换",
+      swapTitle: "交换起止色",
+      gradType: "类型",
+      optLinear: "线性 linear-gradient",
+      optRadial: "径向 radial-gradient",
+      angle: "角度",
+      copyCss: "复制 CSS",
+      contrastTitle: "对比度检查（WCAG）",
+      contrastDesc: "检测文字与背景对比度是否满足无障碍标准。",
+      previewH: "示例标题 Sample",
+      previewP: "这是一段用于预览的正文。The quick brown fox jumps over the lazy dog.",
+      previewS: "小号文字 Small text",
+      fgColor: "前景色（文字）",
+      bgColor: "背景色",
+      wcagAA: "AA 正常文本 (≥4.5:1)",
+      wcagAAA: "AAA 正常文本 (≥7:1)",
+      wcagAALarge: "AA 大号文本 (≥3:1)",
+      wcagAAALarge: "AAA 大号文本 (≥4.5:1)",
+      wcagPass: "通过",
+      wcagFail: "未通过",
+      extractTitle: "图片颜色提取",
+      extractDesc: "上传或拖入图片，通过 Canvas 采样主色。",
+      dropHint: "将图片拖到此处，或点击选择文件",
+      dropHintSub: "支持常见图片格式，处理在本地完成",
+      extractResults: "提取结果",
+      extractEmpty: "暂无结果",
+      extractImgAlt: "已上传的图片预览",
+      extractFileAria: "选择图片",
+      copyColorAria: "复制颜色",
+      footer: "© 2026 Color Tools — 免费在线颜色工具集",
+      toastCopied: "已复制到剪贴板",
+      toastCopyFail: "复制失败，请手动选择",
+      toastNeedImage: "请选择图片文件",
+      toastBadImage: "无法读取图片"
     }
-    return Promise.resolve(fallback());
-    function fallback() {
-      var ta = document.createElement('textarea');
-      ta.value = text;
-      ta.setAttribute('readonly', '');
-      ta.style.position = 'fixed';
-      ta.style.left = '-9999px';
-      document.body.appendChild(ta);
-      ta.select();
-      var ok = false;
-      try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
-      document.body.removeChild(ta);
-      if (ok) toast('已复制到剪贴板');
-      else toast('复制失败，请手动选择');
-      return ok;
-    }
-  }
-
-  function normalizeHex(raw) {
-    var h = String(raw || '').trim().replace(/^#/, '');
-    if (/^[0-9a-fA-F]{6}$/.test(h)) return '#' + h.toLowerCase();
-    if (/^[0-9a-fA-F]{3}$/.test(h)) {
-      return '#' + h.split('').map(function (c) { return c + c; }).join('').toLowerCase();
-    }
-    return null;
-  }
-
-  function hexToRgb(hex) {
-    var n = normalizeHex(hex);
-    if (!n) return null;
-    return {
-      r: parseInt(n.slice(1, 3), 16),
-      g: parseInt(n.slice(3, 5), 16),
-      b: parseInt(n.slice(5, 7), 16)
-    };
-  }
-
-  function rgbToHex(r, g, b) {
-    return '#' + [r, g, b].map(function (v) {
-      v = Math.max(0, Math.min(255, Math.round(v)));
-      return v.toString(16).padStart(2, '0');
-    }).join('');
-  }
-
-  function rgbToHsl(r, g, b) {
-    r /= 255; g /= 255; b /= 255;
-    var max = Math.max(r, g, b), min = Math.min(r, g, b);
-    var h = 0, s = 0, l = (max + min) / 2;
-    if (max !== min) {
-      var d = max - min;
-      s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
-      switch (max) {
-        case r: h = ((g - b) / d + (g < b ? 6 : 0)) / 6; break;
-        case g: h = ((b - r) / d + 2) / 6; break;
-        default: h = ((r - g) / d + 4) / 6;
-      }
-    }
-    return { h: Math.round(h * 360), s: Math.round(s * 100), l: Math.round(l * 100) };
-  }
-
-  function hslToRgb(h, s, l) {
-    h /= 360; s /= 100; l /= 100;
-    if (s === 0) {
-      var v = Math.round(l * 255);
-      return { r: v, g: v, b: v };
-    }
-    function hue2rgb(p, q, t) {
-      if (t < 0) t += 1;
-      if (t > 1) t -= 1;
-      if (t < 1 / 6) return p + (q - p) * 6 * t;
-      if (t < 1 / 2) return q;
-      if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
-      return p;
-    }
-    var q = l < 0.5 ? l * (1 + s) : l + s - l * s;
-    var p = 2 * l - q;
-    return {
-      r: Math.round(hue2rgb(p, q, h + 1 / 3) * 255),
-      g: Math.round(hue2rgb(p, q, h) * 255),
-      b: Math.round(hue2rgb(p, q, h - 1 / 3) * 255)
-    };
-  }
-
-  function randomHex() {
-    var n = Math.floor(Math.random() * 0xffffff);
-    return '#' + n.toString(16).padStart(6, '0');
-  }
-
-  function complementary(hex) {
-    var rgb = hexToRgb(hex);
-    if (!rgb) return hex;
-    return rgbToHex(255 - rgb.r, 255 - rgb.g, 255 - rgb.b);
-  }
-
-  function analogous(hex) {
-    var rgb = hexToRgb(hex);
-    if (!rgb) return [];
-    var hsl = rgbToHsl(rgb.r, rgb.g, rgb.b);
-    return [-30, 30].map(function (off) {
-      var h = (hsl.h + off + 360) % 360;
-      var c = hslToRgb(h, hsl.s, hsl.l);
-      return rgbToHex(c.r, c.g, c.b);
-    });
-  }
-
-  function triadic(hex) {
-    var rgb = hexToRgb(hex);
-    if (!rgb) return [];
-    var hsl = rgbToHsl(rgb.r, rgb.g, rgb.b);
-    return [120, 240].map(function (off) {
-      var h = (hsl.h + off) % 360;
-      var c = hslToRgb(h, hsl.s, hsl.l);
-      return rgbToHex(c.r, c.g, c.b);
-    });
-  }
-
-  function relativeLuminance(hex) {
-    var rgb = hexToRgb(hex);
-    if (!rgb) return 0;
-    function chan(c) {
-      c /= 255;
-      return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
-    }
-    return 0.2126 * chan(rgb.r) + 0.7152 * chan(rgb.g) + 0.0722 * chan(rgb.b);
-  }
-
-  function contrastRatio(a, b) {
-    var l1 = relativeLuminance(a), l2 = relativeLuminance(b);
-    var lighter = Math.max(l1, l2), darker = Math.min(l1, l2);
-    return (lighter + 0.05) / (darker + 0.05);
-  }
-
-  function wcagLevel(ratio) {
-    return {
-      aa: ratio >= 4.5,
-      aaa: ratio >= 7,
-      aaLarge: ratio >= 3,
-      aaaLarge: ratio >= 4.5
-    };
-  }
-
-  function generateGradientSteps(start, end, steps) {
-    var s = hexToRgb(start), e = hexToRgb(end);
-    if (!s || !e) return [];
-    return Array.from({ length: steps }, function (_, i) {
-      var t = steps === 1 ? 0 : i / (steps - 1);
-      return rgbToHex(
-        s.r + (e.r - s.r) * t,
-        s.g + (e.g - s.g) * t,
-        s.b + (e.b - s.b) * t
-      );
-    });
-  }
-
-  function extractColorsFromImage(img, count) {
-    var canvas = document.createElement('canvas');
-    var ctx = canvas.getContext('2d');
-    var size = 100;
-    canvas.width = size;
-    canvas.height = size;
-    ctx.drawImage(img, 0, 0, size, size);
-    var data = ctx.getImageData(0, 0, size, size).data;
-    var buckets = new Map();
-    for (var i = 0; i < data.length; i += 4) {
-      if (data[i + 3] < 128) continue;
-      var r = Math.round(data[i] / 32) * 32;
-      var g = Math.round(data[i + 1] / 32) * 32;
-      var b = Math.round(data[i + 2] / 32) * 32;
-      var key = r + ',' + g + ',' + b;
-      var ex = buckets.get(key);
-      if (ex) ex.count++;
-      else buckets.set(key, { r: r, g: g, b: b, count: 1 });
-    }
-    return Array.from(buckets.values())
-      .sort(function (a, b) { return b.count - a.count; })
-      .slice(0, count)
-      .map(function (c) { return rgbToHex(Math.min(c.r, 255), Math.min(c.g, 255), Math.min(c.b, 255)); });
-  }
-
-  /* Tabs */
-  var tabs = Array.prototype.slice.call(document.querySelectorAll('[role="tab"]'));
-  var panels = {
-    picker: document.getElementById('panel-picker'),
-    palette: document.getElementById('panel-palette'),
-    gradient: document.getElementById('panel-gradient'),
-    contrast: document.getElementById('panel-contrast'),
-    extract: document.getElementById('panel-extract')
   };
 
-  function activateTab(tab) {
-    tabs.forEach(function (t) {
-      var on = t === tab;
-      t.setAttribute('aria-selected', on ? 'true' : 'false');
-      t.tabIndex = on ? 0 : -1;
-    });
-    Object.keys(panels).forEach(function (key) {
-      var p = panels[key];
-      var on = tab.id === 'tab-' + key;
-      p.classList.toggle('active', on);
-      p.hidden = !on;
-    });
+  function t(key) {
+    var lang = window.WTLang ? WTLang.get() : "en";
+    var pack = I18N[lang] || I18N.en;
+    if (pack[key] != null) return pack[key];
+    return I18N.en[key] != null ? I18N.en[key] : key;
   }
 
-  tabs.forEach(function (tab) {
-    tab.addEventListener('click', function () { activateTab(tab); });
-    tab.addEventListener('keydown', function (e) {
-      var idx = tabs.indexOf(tab);
-      if (e.key === 'ArrowRight') { e.preventDefault(); activateTab(tabs[(idx + 1) % tabs.length]); tabs[(idx + 1) % tabs.length].focus(); }
-      if (e.key === 'ArrowLeft') { e.preventDefault(); activateTab(tabs[(idx - 1 + tabs.length) % tabs.length]); tabs[(idx - 1 + tabs.length) % tabs.length].focus(); }
+  WTLang.apply(I18N);
+  document.querySelectorAll("[data-lang]").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      WTLang.set(btn.getAttribute("data-lang"), I18N);
+      if (window.refreshToolI18n) window.refreshToolI18n();
     });
   });
 
-  /* Picker */
-  var pickerState = { source: 'hex' };
-  var pickerPreview = document.getElementById('pickerPreview');
-  var pickerNative = document.getElementById('pickerNative');
-  var pickerHex = document.getElementById('pickerHex');
-  var pickerR = document.getElementById('pickerR');
-  var pickerG = document.getElementById('pickerG');
-  var pickerB = document.getElementById('pickerB');
-  var pickerH = document.getElementById('pickerH');
-  var pickerS = document.getElementById('pickerS');
-  var pickerL = document.getElementById('pickerL');
+  (function () {
+    'use strict';
 
-  function applyPickerFromHex(hex) {
-    var n = normalizeHex(hex);
-    if (!n) return;
-    var rgb = hexToRgb(n);
-    var hsl = rgbToHsl(rgb.r, rgb.g, rgb.b);
-    pickerHex.value = n;
-    pickerNative.value = n;
-    pickerR.value = rgb.r;
-    pickerG.value = rgb.g;
-    pickerB.value = rgb.b;
-    pickerH.value = hsl.h;
-    pickerS.value = hsl.s;
-    pickerL.value = hsl.l;
-    pickerPreview.style.background = n;
-  }
-
-  function fromRgbFields() {
-    var r = +pickerR.value, g = +pickerG.value, b = +pickerB.value;
-    applyPickerFromHex(rgbToHex(r, g, b));
-  }
-
-  function fromHslFields() {
-    var rgb = hslToRgb(+pickerH.value, +pickerS.value, +pickerL.value);
-    applyPickerFromHex(rgbToHex(rgb.r, rgb.g, rgb.b));
-  }
-
-  pickerNative.addEventListener('input', function () { applyPickerFromHex(pickerNative.value); });
-  pickerHex.addEventListener('change', function () { applyPickerFromHex(pickerHex.value); });
-  [pickerR, pickerG, pickerB].forEach(function (el) { el.addEventListener('change', fromRgbFields); });
-  [pickerH, pickerS, pickerL].forEach(function (el) { el.addEventListener('change', fromHslFields); });
-
-  document.querySelector('[data-copy="pickerHexRaw"]').addEventListener('click', function () {
-    copyText(pickerHex.value);
-  });
-  document.getElementById('copyRgb').addEventListener('click', function () {
-    copyText('rgb(' + pickerR.value + ', ' + pickerG.value + ', ' + pickerB.value + ')');
-  });
-  document.getElementById('copyHsl').addEventListener('click', function () {
-    copyText('hsl(' + pickerH.value + ', ' + pickerS.value + '%, ' + pickerL.value + '%)');
-  });
-
-  applyPickerFromHex('#6366f1');
-
-  /* Palette */
-  var paletteBar = document.getElementById('paletteBar');
-  function renderPalette(colors) {
-    paletteBar.innerHTML = '';
-    colors.forEach(function (c) {
-      var btn = document.createElement('button');
-      btn.type = 'button';
-      btn.style.background = c;
-      btn.setAttribute('aria-label', '复制颜色 ' + c);
-      var span = document.createElement('span');
-      span.textContent = c;
-      btn.appendChild(span);
-      btn.addEventListener('click', function () { copyText(c); });
-      paletteBar.appendChild(btn);
-    });
-  }
-
-  function generatePalette() {
-    var mode = document.getElementById('paletteMode').value;
-    var seed = normalizeHex(document.getElementById('paletteSeed').value) || randomHex();
-    document.getElementById('paletteSeed').value = seed;
-    var colors;
-    if (mode === 'random') {
-      colors = Array.from({ length: 5 }, randomHex);
-    } else if (mode === 'complementary') {
-      colors = [seed, complementary(seed), randomHex(), randomHex(), randomHex()];
-    } else if (mode === 'analogous') {
-      colors = [seed].concat(analogous(seed), [randomHex(), randomHex()]);
-    } else {
-      colors = [seed].concat(triadic(seed), [randomHex(), randomHex()]);
+    function toast(msg) {
+      var el = document.getElementById('toast');
+      el.textContent = msg;
+      el.classList.add('show');
+      clearTimeout(toast._t);
+      toast._t = setTimeout(function () { el.classList.remove('show'); }, 1600);
     }
-    renderPalette(colors.slice(0, 5));
-  }
 
-  document.getElementById('paletteGenerate').addEventListener('click', generatePalette);
-  generatePalette();
-
-  /* Gradient */
-  var gradPreview = document.getElementById('gradientPreview');
-  var gradStartPick = document.getElementById('gradStartPick');
-  var gradEndPick = document.getElementById('gradEndPick');
-  var gradStartText = document.getElementById('gradStartText');
-  var gradEndText = document.getElementById('gradEndText');
-  var gradType = document.getElementById('gradType');
-  var gradAngle = document.getElementById('gradAngle');
-  var gradAngleWrap = document.getElementById('gradAngleWrap');
-  var gradCss = document.getElementById('gradCss');
-  var gradSteps = document.getElementById('gradSteps');
-
-  function syncGradColor(which) {
-    if (which === 'start') {
-      var n = normalizeHex(gradStartText.value);
-      if (n) { gradStartPick.value = n; gradStartText.value = n; }
-      else gradStartText.value = gradStartPick.value;
-    } else {
-      var m = normalizeHex(gradEndText.value);
-      if (m) { gradEndPick.value = m; gradEndText.value = m; }
-      else gradEndText.value = gradEndPick.value;
+    function copyText(text) {
+      if (navigator.clipboard && window.isSecureContext) {
+        return navigator.clipboard.writeText(text).then(function () {
+          toast(t('toastCopied'));
+          return true;
+        }).catch(fallback);
+      }
+      return Promise.resolve(fallback());
+      function fallback() {
+        var ta = document.createElement('textarea');
+        ta.value = text;
+        ta.setAttribute('readonly', '');
+        ta.style.position = 'fixed';
+        ta.style.left = '-9999px';
+        document.body.appendChild(ta);
+        ta.select();
+        var ok = false;
+        try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+        document.body.removeChild(ta);
+        if (ok) toast(t('toastCopied'));
+        else toast(t('toastCopyFail'));
+        return ok;
+      }
     }
+
+    function normalizeHex(raw) {
+      var h = String(raw || '').trim().replace(/^#/, '');
+      if (/^[0-9a-fA-F]{6}$/.test(h)) return '#' + h.toLowerCase();
+      if (/^[0-9a-fA-F]{3}$/.test(h)) {
+        return '#' + h.split('').map(function (c) { return c + c; }).join('').toLowerCase();
+      }
+      return null;
+    }
+
+    function hexToRgb(hex) {
+      var n = normalizeHex(hex);
+      if (!n) return null;
+      return {
+        r: parseInt(n.slice(1, 3), 16),
+        g: parseInt(n.slice(3, 5), 16),
+        b: parseInt(n.slice(5, 7), 16)
+      };
+    }
+
+    function rgbToHex(r, g, b) {
+      return '#' + [r, g, b].map(function (v) {
+        v = Math.max(0, Math.min(255, Math.round(v)));
+        return v.toString(16).padStart(2, '0');
+      }).join('');
+    }
+
+    function rgbToHsl(r, g, b) {
+      r /= 255; g /= 255; b /= 255;
+      var max = Math.max(r, g, b), min = Math.min(r, g, b);
+      var h = 0, s = 0, l = (max + min) / 2;
+      if (max !== min) {
+        var d = max - min;
+        s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+        switch (max) {
+          case r: h = ((g - b) / d + (g < b ? 6 : 0)) / 6; break;
+          case g: h = ((b - r) / d + 2) / 6; break;
+          default: h = ((r - g) / d + 4) / 6;
+        }
+      }
+      return { h: Math.round(h * 360), s: Math.round(s * 100), l: Math.round(l * 100) };
+    }
+
+    function hslToRgb(h, s, l) {
+      h /= 360; s /= 100; l /= 100;
+      if (s === 0) {
+        var v = Math.round(l * 255);
+        return { r: v, g: v, b: v };
+      }
+      function hue2rgb(p, q, t) {
+        if (t < 0) t += 1;
+        if (t > 1) t -= 1;
+        if (t < 1 / 6) return p + (q - p) * 6 * t;
+        if (t < 1 / 2) return q;
+        if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
+        return p;
+      }
+      var q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+      var p = 2 * l - q;
+      return {
+        r: Math.round(hue2rgb(p, q, h + 1 / 3) * 255),
+        g: Math.round(hue2rgb(p, q, h) * 255),
+        b: Math.round(hue2rgb(p, q, h - 1 / 3) * 255)
+      };
+    }
+
+    function randomHex() {
+      var n = Math.floor(Math.random() * 0xffffff);
+      return '#' + n.toString(16).padStart(6, '0');
+    }
+
+    function complementary(hex) {
+      var rgb = hexToRgb(hex);
+      if (!rgb) return hex;
+      return rgbToHex(255 - rgb.r, 255 - rgb.g, 255 - rgb.b);
+    }
+
+    function analogous(hex) {
+      var rgb = hexToRgb(hex);
+      if (!rgb) return [];
+      var hsl = rgbToHsl(rgb.r, rgb.g, rgb.b);
+      return [-30, 30].map(function (off) {
+        var h = (hsl.h + off + 360) % 360;
+        var c = hslToRgb(h, hsl.s, hsl.l);
+        return rgbToHex(c.r, c.g, c.b);
+      });
+    }
+
+    function triadic(hex) {
+      var rgb = hexToRgb(hex);
+      if (!rgb) return [];
+      var hsl = rgbToHsl(rgb.r, rgb.g, rgb.b);
+      return [120, 240].map(function (off) {
+        var h = (hsl.h + off) % 360;
+        var c = hslToRgb(h, hsl.s, hsl.l);
+        return rgbToHex(c.r, c.g, c.b);
+      });
+    }
+
+    function relativeLuminance(hex) {
+      var rgb = hexToRgb(hex);
+      if (!rgb) return 0;
+      function chan(c) {
+        c /= 255;
+        return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+      }
+      return 0.2126 * chan(rgb.r) + 0.7152 * chan(rgb.g) + 0.0722 * chan(rgb.b);
+    }
+
+    function contrastRatio(a, b) {
+      var l1 = relativeLuminance(a), l2 = relativeLuminance(b);
+      var lighter = Math.max(l1, l2), darker = Math.min(l1, l2);
+      return (lighter + 0.05) / (darker + 0.05);
+    }
+
+    function wcagLevel(ratio) {
+      return {
+        aa: ratio >= 4.5,
+        aaa: ratio >= 7,
+        aaLarge: ratio >= 3,
+        aaaLarge: ratio >= 4.5
+      };
+    }
+
+    function generateGradientSteps(start, end, steps) {
+      var s = hexToRgb(start), e = hexToRgb(end);
+      if (!s || !e) return [];
+      return Array.from({ length: steps }, function (_, i) {
+        var t = steps === 1 ? 0 : i / (steps - 1);
+        return rgbToHex(
+          s.r + (e.r - s.r) * t,
+          s.g + (e.g - s.g) * t,
+          s.b + (e.b - s.b) * t
+        );
+      });
+    }
+
+    function extractColorsFromImage(img, count) {
+      var canvas = document.createElement('canvas');
+      var ctx = canvas.getContext('2d');
+      var size = 100;
+      canvas.width = size;
+      canvas.height = size;
+      ctx.drawImage(img, 0, 0, size, size);
+      var data = ctx.getImageData(0, 0, size, size).data;
+      var buckets = new Map();
+      for (var i = 0; i < data.length; i += 4) {
+        if (data[i + 3] < 128) continue;
+        var r = Math.round(data[i] / 32) * 32;
+        var g = Math.round(data[i + 1] / 32) * 32;
+        var b = Math.round(data[i + 2] / 32) * 32;
+        var key = r + ',' + g + ',' + b;
+        var ex = buckets.get(key);
+        if (ex) ex.count++;
+        else buckets.set(key, { r: r, g: g, b: b, count: 1 });
+      }
+      return Array.from(buckets.values())
+        .sort(function (a, b) { return b.count - a.count; })
+        .slice(0, count)
+        .map(function (c) { return rgbToHex(Math.min(c.r, 255), Math.min(c.g, 255), Math.min(c.b, 255)); });
+    }
+
+    /* Tabs */
+    var tabs = Array.prototype.slice.call(document.querySelectorAll('[role="tab"]'));
+    var panels = {
+      picker: document.getElementById('panel-picker'),
+      palette: document.getElementById('panel-palette'),
+      gradient: document.getElementById('panel-gradient'),
+      contrast: document.getElementById('panel-contrast'),
+      extract: document.getElementById('panel-extract')
+    };
+
+    function activateTab(tab) {
+      tabs.forEach(function (t) {
+        var on = t === tab;
+        t.setAttribute('aria-selected', on ? 'true' : 'false');
+        t.tabIndex = on ? 0 : -1;
+      });
+      Object.keys(panels).forEach(function (key) {
+        var p = panels[key];
+        var on = tab.id === 'tab-' + key;
+        p.classList.toggle('active', on);
+        p.hidden = !on;
+      });
+    }
+
+    tabs.forEach(function (tab) {
+      tab.addEventListener('click', function () { activateTab(tab); });
+      tab.addEventListener('keydown', function (e) {
+        var idx = tabs.indexOf(tab);
+        if (e.key === 'ArrowRight') { e.preventDefault(); activateTab(tabs[(idx + 1) % tabs.length]); tabs[(idx + 1) % tabs.length].focus(); }
+        if (e.key === 'ArrowLeft') { e.preventDefault(); activateTab(tabs[(idx - 1 + tabs.length) % tabs.length]); tabs[(idx - 1 + tabs.length) % tabs.length].focus(); }
+      });
+    });
+
+    /* Picker */
+    var pickerState = { source: 'hex' };
+    var pickerPreview = document.getElementById('pickerPreview');
+    var pickerNative = document.getElementById('pickerNative');
+    var pickerHex = document.getElementById('pickerHex');
+    var pickerR = document.getElementById('pickerR');
+    var pickerG = document.getElementById('pickerG');
+    var pickerB = document.getElementById('pickerB');
+    var pickerH = document.getElementById('pickerH');
+    var pickerS = document.getElementById('pickerS');
+    var pickerL = document.getElementById('pickerL');
+
+    function applyPickerFromHex(hex) {
+      var n = normalizeHex(hex);
+      if (!n) return;
+      var rgb = hexToRgb(n);
+      var hsl = rgbToHsl(rgb.r, rgb.g, rgb.b);
+      pickerHex.value = n;
+      pickerNative.value = n;
+      pickerR.value = rgb.r;
+      pickerG.value = rgb.g;
+      pickerB.value = rgb.b;
+      pickerH.value = hsl.h;
+      pickerS.value = hsl.s;
+      pickerL.value = hsl.l;
+      pickerPreview.style.background = n;
+    }
+
+    function fromRgbFields() {
+      var r = +pickerR.value, g = +pickerG.value, b = +pickerB.value;
+      applyPickerFromHex(rgbToHex(r, g, b));
+    }
+
+    function fromHslFields() {
+      var rgb = hslToRgb(+pickerH.value, +pickerS.value, +pickerL.value);
+      applyPickerFromHex(rgbToHex(rgb.r, rgb.g, rgb.b));
+    }
+
+    pickerNative.addEventListener('input', function () { applyPickerFromHex(pickerNative.value); });
+    pickerHex.addEventListener('change', function () { applyPickerFromHex(pickerHex.value); });
+    [pickerR, pickerG, pickerB].forEach(function (el) { el.addEventListener('change', fromRgbFields); });
+    [pickerH, pickerS, pickerL].forEach(function (el) { el.addEventListener('change', fromHslFields); });
+
+    document.querySelector('[data-copy="pickerHexRaw"]').addEventListener('click', function () {
+      copyText(pickerHex.value);
+    });
+    document.getElementById('copyRgb').addEventListener('click', function () {
+      copyText('rgb(' + pickerR.value + ', ' + pickerG.value + ', ' + pickerB.value + ')');
+    });
+    document.getElementById('copyHsl').addEventListener('click', function () {
+      copyText('hsl(' + pickerH.value + ', ' + pickerS.value + '%, ' + pickerL.value + '%)');
+    });
+
+    applyPickerFromHex('#6366f1');
+
+    /* Palette */
+    var paletteBar = document.getElementById('paletteBar');
+    function renderPalette(colors) {
+      paletteBar.innerHTML = '';
+      colors.forEach(function (c) {
+        var btn = document.createElement('button');
+        btn.type = 'button';
+        btn.style.background = c;
+        btn.setAttribute('aria-label', t('copyColorAria') + ' ' + c);
+        var span = document.createElement('span');
+        span.textContent = c;
+        btn.appendChild(span);
+        btn.addEventListener('click', function () { copyText(c); });
+        paletteBar.appendChild(btn);
+      });
+    }
+
+    function generatePalette() {
+      var mode = document.getElementById('paletteMode').value;
+      var seed = normalizeHex(document.getElementById('paletteSeed').value) || randomHex();
+      document.getElementById('paletteSeed').value = seed;
+      var colors;
+      if (mode === 'random') {
+        colors = Array.from({ length: 5 }, randomHex);
+      } else if (mode === 'complementary') {
+        colors = [seed, complementary(seed), randomHex(), randomHex(), randomHex()];
+      } else if (mode === 'analogous') {
+        colors = [seed].concat(analogous(seed), [randomHex(), randomHex()]);
+      } else {
+        colors = [seed].concat(triadic(seed), [randomHex(), randomHex()]);
+      }
+      renderPalette(colors.slice(0, 5));
+    }
+
+    document.getElementById('paletteGenerate').addEventListener('click', generatePalette);
+    generatePalette();
+
+    /* Gradient */
+    var gradPreview = document.getElementById('gradientPreview');
+    var gradStartPick = document.getElementById('gradStartPick');
+    var gradEndPick = document.getElementById('gradEndPick');
+    var gradStartText = document.getElementById('gradStartText');
+    var gradEndText = document.getElementById('gradEndText');
+    var gradType = document.getElementById('gradType');
+    var gradAngle = document.getElementById('gradAngle');
+    var gradAngleWrap = document.getElementById('gradAngleWrap');
+    var gradCss = document.getElementById('gradCss');
+    var gradSteps = document.getElementById('gradSteps');
+
+    function syncGradColor(which) {
+      if (which === 'start') {
+        var n = normalizeHex(gradStartText.value);
+        if (n) { gradStartPick.value = n; gradStartText.value = n; }
+        else gradStartText.value = gradStartPick.value;
+      } else {
+        var m = normalizeHex(gradEndText.value);
+        if (m) { gradEndPick.value = m; gradEndText.value = m; }
+        else gradEndText.value = gradEndPick.value;
+      }
+      updateGradient();
+    }
+
+    function updateGradient() {
+      var s = normalizeHex(gradStartPick.value) || '#6366f1';
+      var e = normalizeHex(gradEndPick.value) || '#ec4899';
+      gradStartPick.value = s; gradStartText.value = s;
+      gradEndPick.value = e; gradEndText.value = e;
+      var angle = +gradAngle.value;
+      document.getElementById('gradAngleVal').textContent = String(angle);
+      var bg, css;
+      if (gradType.value === 'linear') {
+        bg = 'linear-gradient(' + angle + 'deg, ' + s + ', ' + e + ')';
+        css = 'background: linear-gradient(' + angle + 'deg, ' + s + ', ' + e + ');';
+        gradAngleWrap.hidden = false;
+      } else {
+        bg = 'radial-gradient(circle, ' + s + ', ' + e + ')';
+        css = 'background: radial-gradient(circle, ' + s + ', ' + e + ');';
+        gradAngleWrap.hidden = true;
+      }
+      gradPreview.style.background = bg;
+      gradCss.textContent = css;
+      var steps = generateGradientSteps(s, e, 8);
+      gradSteps.innerHTML = '';
+      steps.forEach(function (c) {
+        var b = document.createElement('button');
+        b.type = 'button';
+        b.style.background = c;
+        b.textContent = c;
+        b.addEventListener('click', function () { copyText(c); });
+        gradSteps.appendChild(b);
+      });
+    }
+
+    gradStartPick.addEventListener('input', function () { gradStartText.value = gradStartPick.value; updateGradient(); });
+    gradEndPick.addEventListener('input', function () { gradEndText.value = gradEndPick.value; updateGradient(); });
+    gradStartText.addEventListener('change', function () { syncGradColor('start'); });
+    gradEndText.addEventListener('change', function () { syncGradColor('end'); });
+    gradType.addEventListener('change', updateGradient);
+    gradAngle.addEventListener('input', updateGradient);
+    document.getElementById('gradSwap').addEventListener('click', function () {
+      var t = gradStartPick.value;
+      gradStartPick.value = gradEndPick.value;
+      gradEndPick.value = t;
+      syncGradColor('start');
+      syncGradColor('end');
+    });
+    document.getElementById('copyGradCss').addEventListener('click', function () { copyText(gradCss.textContent); });
     updateGradient();
-  }
 
-  function updateGradient() {
-    var s = normalizeHex(gradStartPick.value) || '#6366f1';
-    var e = normalizeHex(gradEndPick.value) || '#ec4899';
-    gradStartPick.value = s; gradStartText.value = s;
-    gradEndPick.value = e; gradEndText.value = e;
-    var angle = +gradAngle.value;
-    document.getElementById('gradAngleVal').textContent = String(angle);
-    var bg, css;
-    if (gradType.value === 'linear') {
-      bg = 'linear-gradient(' + angle + 'deg, ' + s + ', ' + e + ')';
-      css = 'background: linear-gradient(' + angle + 'deg, ' + s + ', ' + e + ');';
-      gradAngleWrap.hidden = false;
-    } else {
-      bg = 'radial-gradient(circle, ' + s + ', ' + e + ')';
-      css = 'background: radial-gradient(circle, ' + s + ', ' + e + ');';
-      gradAngleWrap.hidden = true;
+    /* Contrast */
+    var contrastPreview = document.getElementById('contrastPreview');
+    var contrastFgPick = document.getElementById('contrastFgPick');
+    var contrastBgPick = document.getElementById('contrastBgPick');
+    var contrastFgText = document.getElementById('contrastFgText');
+    var contrastBgText = document.getElementById('contrastBgText');
+    var wcagList = document.getElementById('wcagList');
+
+    function bindColorPair(pick, text, onUpdate) {
+      pick.addEventListener('input', function () { text.value = pick.value; onUpdate(); });
+      text.addEventListener('change', function () {
+        var n = normalizeHex(text.value);
+        if (n) pick.value = n;
+        text.value = pick.value;
+        onUpdate();
+      });
     }
-    gradPreview.style.background = bg;
-    gradCss.textContent = css;
-    var steps = generateGradientSteps(s, e, 8);
-    gradSteps.innerHTML = '';
-    steps.forEach(function (c) {
-      var b = document.createElement('button');
-      b.type = 'button';
-      b.style.background = c;
-      b.textContent = c;
-      b.addEventListener('click', function () { copyText(c); });
-      gradSteps.appendChild(b);
-    });
-  }
 
-  gradStartPick.addEventListener('input', function () { gradStartText.value = gradStartPick.value; updateGradient(); });
-  gradEndPick.addEventListener('input', function () { gradEndText.value = gradEndPick.value; updateGradient(); });
-  gradStartText.addEventListener('change', function () { syncGradColor('start'); });
-  gradEndText.addEventListener('change', function () { syncGradColor('end'); });
-  gradType.addEventListener('change', updateGradient);
-  gradAngle.addEventListener('input', updateGradient);
-  document.getElementById('gradSwap').addEventListener('click', function () {
-    var t = gradStartPick.value;
-    gradStartPick.value = gradEndPick.value;
-    gradEndPick.value = t;
-    syncGradColor('start');
-    syncGradColor('end');
-  });
-  document.getElementById('copyGradCss').addEventListener('click', function () { copyText(gradCss.textContent); });
-  updateGradient();
-
-  /* Contrast */
-  var contrastPreview = document.getElementById('contrastPreview');
-  var contrastFgPick = document.getElementById('contrastFgPick');
-  var contrastBgPick = document.getElementById('contrastBgPick');
-  var contrastFgText = document.getElementById('contrastFgText');
-  var contrastBgText = document.getElementById('contrastBgText');
-  var wcagList = document.getElementById('wcagList');
-
-  function bindColorPair(pick, text, onUpdate) {
-    pick.addEventListener('input', function () { text.value = pick.value; onUpdate(); });
-    text.addEventListener('change', function () {
-      var n = normalizeHex(text.value);
-      if (n) pick.value = n;
-      text.value = pick.value;
-      onUpdate();
-    });
-  }
-
-  function updateContrast() {
-    var fg = normalizeHex(contrastFgPick.value) || '#ffffff';
-    var bg = normalizeHex(contrastBgPick.value) || '#6366f1';
-    contrastFgPick.value = fg; contrastFgText.value = fg;
-    contrastBgPick.value = bg; contrastBgText.value = bg;
-    contrastPreview.style.color = fg;
-    contrastPreview.style.background = bg;
-    var ratio = contrastRatio(fg, bg);
-    document.getElementById('contrastRatio').textContent = ratio.toFixed(2) + ':1';
-    var lv = wcagLevel(ratio);
-    var items = [
-      { ok: lv.aa, label: 'AA 正常文本 (≥4.5:1)' },
-      { ok: lv.aaa, label: 'AAA 正常文本 (≥7:1)' },
-      { ok: lv.aaLarge, label: 'AA 大号文本 (≥3:1)' },
-      { ok: lv.aaaLarge, label: 'AAA 大号文本 (≥4.5:1)' }
-    ];
-    wcagList.innerHTML = '';
-    items.forEach(function (it) {
-      var li = document.createElement('li');
-      var mark = document.createElement('span');
-      mark.className = 'mark ' + (it.ok ? 'pass' : 'fail');
-      mark.textContent = it.ok ? '✓' : '✗';
-      mark.setAttribute('aria-hidden', 'true');
-      li.appendChild(mark);
-      li.appendChild(document.createTextNode(it.label + (it.ok ? ' — 通过' : ' — 未通过')));
-      wcagList.appendChild(li);
-    });
-  }
-
-  bindColorPair(contrastFgPick, contrastFgText, updateContrast);
-  bindColorPair(contrastBgPick, contrastBgText, updateContrast);
-  updateContrast();
-
-  /* Extract */
-  var dropZone = document.getElementById('dropZone');
-  var extractFile = document.getElementById('extractFile');
-  var extractImg = document.getElementById('extractImg');
-  var dropHint = document.getElementById('dropHint');
-  var extractColors = document.getElementById('extractColors');
-
-  function showExtractColors(list) {
-    extractColors.innerHTML = '';
-    if (!list.length) {
-      extractColors.innerHTML = '<p class="panel-desc" style="margin:0">暂无结果</p>';
-      return;
+    function updateContrast() {
+      var fg = normalizeHex(contrastFgPick.value) || '#ffffff';
+      var bg = normalizeHex(contrastBgPick.value) || '#6366f1';
+      contrastFgPick.value = fg; contrastFgText.value = fg;
+      contrastBgPick.value = bg; contrastBgText.value = bg;
+      contrastPreview.style.color = fg;
+      contrastPreview.style.background = bg;
+      var ratio = contrastRatio(fg, bg);
+      document.getElementById('contrastRatio').textContent = ratio.toFixed(2) + ':1';
+      var lv = wcagLevel(ratio);
+      var items = [
+        { ok: lv.aa, label: t('wcagAA') },
+        { ok: lv.aaa, label: t('wcagAAA') },
+        { ok: lv.aaLarge, label: t('wcagAALarge') },
+        { ok: lv.aaaLarge, label: t('wcagAAALarge') }
+      ];
+      wcagList.innerHTML = '';
+      items.forEach(function (it) {
+        var li = document.createElement('li');
+        var mark = document.createElement('span');
+        mark.className = 'mark ' + (it.ok ? 'pass' : 'fail');
+        mark.textContent = it.ok ? '✓' : '✗';
+        mark.setAttribute('aria-hidden', 'true');
+        li.appendChild(mark);
+        li.appendChild(document.createTextNode(it.label + (it.ok ? ' — ' + t('wcagPass') : ' — ' + t('wcagFail'))));
+        wcagList.appendChild(li);
+      });
     }
-    list.forEach(function (c) {
-      var btn = document.createElement('button');
-      btn.type = 'button';
-      var dot = document.createElement('span');
-      dot.className = 'dot';
-      dot.style.background = c;
-      var code = document.createElement('code');
-      code.textContent = c;
-      btn.appendChild(dot);
-      btn.appendChild(code);
-      btn.appendChild(document.createTextNode('复制'));
-      btn.addEventListener('click', function () { copyText(c); });
-      extractColors.appendChild(btn);
-    });
-  }
 
-  function processImageFile(file) {
-    if (!file || !file.type.startsWith('image/')) {
-      toast('请选择图片文件');
-      return;
+    bindColorPair(contrastFgPick, contrastFgText, updateContrast);
+    bindColorPair(contrastBgPick, contrastBgText, updateContrast);
+    updateContrast();
+
+    /* Extract */
+    var dropZone = document.getElementById('dropZone');
+    var extractFile = document.getElementById('extractFile');
+    var extractImg = document.getElementById('extractImg');
+    var dropHint = document.getElementById('dropHint');
+    var extractColors = document.getElementById('extractColors');
+    var lastExtracted = [];
+
+    function showExtractColors(list) {
+      lastExtracted = list.slice();
+      extractColors.innerHTML = '';
+      if (!list.length) {
+        extractColors.innerHTML = '<p class="empty-hint">' + t('extractEmpty') + '</p>';
+        return;
+      }
+      list.forEach(function (c) {
+        var btn = document.createElement('button');
+        btn.type = 'button';
+        var dot = document.createElement('span');
+        dot.className = 'dot';
+        dot.style.background = c;
+        var code = document.createElement('code');
+        code.textContent = c;
+        btn.appendChild(dot);
+        btn.appendChild(code);
+        btn.appendChild(document.createTextNode(t('copy')));
+        btn.addEventListener('click', function () { copyText(c); });
+        extractColors.appendChild(btn);
+      });
     }
-    var url = URL.createObjectURL(file);
-    var img = new Image();
-    img.onload = function () {
-      extractImg.src = url;
-      extractImg.hidden = false;
-      dropHint.hidden = true;
-      showExtractColors(extractColorsFromImage(img, 6));
+
+    function processImageFile(file) {
+      if (!file || !file.type.startsWith('image/')) {
+        toast(t('toastNeedImage'));
+        return;
+      }
+      var url = URL.createObjectURL(file);
+      var img = new Image();
+      img.onload = function () {
+        extractImg.src = url;
+        extractImg.hidden = false;
+        dropHint.hidden = true;
+        showExtractColors(extractColorsFromImage(img, 6));
+      };
+      img.onerror = function () {
+        toast(t('toastBadImage'));
+        URL.revokeObjectURL(url);
+      };
+      img.src = url;
+    }
+
+    extractFile.addEventListener('change', function () {
+      var f = extractFile.files && extractFile.files[0];
+      if (f) processImageFile(f);
+      extractFile.value = '';
+    });
+
+    dropZone.addEventListener('dragover', function (e) {
+      e.preventDefault();
+      dropZone.classList.add('dragging');
+    });
+    dropZone.addEventListener('dragleave', function () { dropZone.classList.remove('dragging'); });
+    dropZone.addEventListener('drop', function (e) {
+      e.preventDefault();
+      dropZone.classList.remove('dragging');
+      var f = e.dataTransfer.files && e.dataTransfer.files[0];
+      if (f) processImageFile(f);
+    });
+
+    showExtractColors([]);
+
+    window.refreshToolI18n = function () {
+      updateContrast();
+      showExtractColors(lastExtracted);
+      paletteBar.querySelectorAll('button').forEach(function (btn) {
+        var span = btn.querySelector('span');
+        if (span) btn.setAttribute('aria-label', t('copyColorAria') + ' ' + span.textContent);
+      });
+      extractImg.alt = t('extractImgAlt');
+      extractFile.setAttribute('aria-label', t('extractFileAria'));
+      var list = document.querySelector('[role="tablist"]');
+      if (list) list.setAttribute('aria-label', t('tabsAria'));
+      document.getElementById('paletteMode').setAttribute('aria-label', t('paletteScheme'));
+      document.getElementById('paletteSeed').setAttribute('aria-label', t('paletteSeed'));
+      document.getElementById('gradStartPick').setAttribute('aria-label', t('startColor'));
+      document.getElementById('gradEndPick').setAttribute('aria-label', t('endColor'));
     };
-    img.onerror = function () {
-      toast('无法读取图片');
-      URL.revokeObjectURL(url);
-    };
-    img.src = url;
-  }
-
-  extractFile.addEventListener('change', function () {
-    var f = extractFile.files && extractFile.files[0];
-    if (f) processImageFile(f);
-    extractFile.value = '';
-  });
-
-  dropZone.addEventListener('dragover', function (e) {
-    e.preventDefault();
-    dropZone.classList.add('dragging');
-  });
-  dropZone.addEventListener('dragleave', function () { dropZone.classList.remove('dragging'); });
-  dropZone.addEventListener('drop', function (e) {
-    e.preventDefault();
-    dropZone.classList.remove('dragging');
-    var f = e.dataTransfer.files && e.dataTransfer.files[0];
-    if (f) processImageFile(f);
-  });
-
-  showExtractColors([]);
-})();
+    window.refreshToolI18n();
+  })();
   </script>
 </body>
 </html>

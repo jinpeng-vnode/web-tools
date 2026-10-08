@@ -1,128 +1,347 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>图片压缩</title>
+  <title>Image Compress Tools</title>
   <style>
     :root {
-      color-scheme: light dark;
-      --bg: #f4f1ea;
-      --fg: #1c1915;
-      --muted: #5c564c;
-      --card: #fffdf8;
-      --line: #d9d2c5;
-      --accent: #1f4d3a;
-      --pass: #15803d;
-      --fail: #b91c1c;
-      --radius: 10px;
-    }
-    @media (prefers-color-scheme: dark) {
-      :root {
-        --bg: #161411;
-        --fg: #f3eee4;
-        --muted: #b4ab9c;
-        --card: #211d18;
-        --line: #3a342c;
-        --accent: #8fbfa6;
-      }
+      --primary: #4f46e5;
+      --primary-dark: #3730a3;
+      --accent: #10b981;
+      --bg: #ffffff;
+      --page: #ffffff;
+      --text: #111827;
+      --muted: #4b5563;
+      --muted-2: #6b7280;
+      --gray-50: #f9fafb;
+      --gray-100: #f3f4f6;
+      --gray-200: #e5e7eb;
+      --gray-300: #d1d5db;
+      --gray-400: #9ca3af;
+      --gray-500: #6b7280;
+      --gray-600: #4b5563;
+      --gray-900: #111827;
+      --red-50: #fef2f2;
+      --red-500: #ef4444;
+      --green-50: #ecfdf5;
+      --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+      --radius: 0.5rem;
     }
     * { box-sizing: border-box; }
+    html, body { margin: 0; }
     body {
-      margin: 0;
-      font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
-      background: var(--bg);
-      color: var(--fg);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      font-family: "Noto Sans SC", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+      background: var(--page);
+      color: var(--text);
       line-height: 1.5;
     }
-    a { color: var(--accent); }
-    a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-    .wrap { max-width: 960px; margin: 0 auto; padding: 24px 20px 64px; }
-    h1 { font-size: 1.6rem; font-weight: 650; margin: 12px 0 4px; }
-    .lead { color: var(--muted); margin: 0 0 20px; }
-    .card {
-      background: var(--card);
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-      padding: 20px;
-    }
-    label.field-label { display: block; font-size: 0.85rem; font-weight: 600; color: var(--muted); margin-bottom: 6px; }
-    input[type="range"] { width: 100%; accent-color: var(--accent); }
-    select {
-      width: 100%;
-      padding: 10px 12px;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      background: var(--bg);
-      color: var(--fg);
-      font: inherit;
-    }
-    input:focus-visible, select:focus-visible, button:focus-visible {
-      outline: 2px solid var(--accent);
+    a { color: var(--primary); text-decoration: none; }
+    a:hover { color: var(--primary-dark); }
+    a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible {
+      outline: 2px solid var(--primary);
       outline-offset: 2px;
     }
-    .btn {
+    .site-header {
+      background: #fff;
+      box-shadow: var(--shadow-sm);
+      border-bottom: 1px solid var(--gray-200);
+      position: sticky;
+      top: 0;
+      z-index: 30;
+    }
+    .header-inner {
+      max-width: 80rem;
+      margin: 0 auto;
+      padding: 0.75rem 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--primary);
+      font-size: 1.25rem;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .logo svg { width: 1.5rem; height: 1.5rem; flex-shrink: 0; }
+    .mode-nav {
+      display: none;
+      align-items: center;
+      gap: 1rem;
+      font-size: 0.875rem;
+    }
+    .mode-nav button {
+      background: none;
+      border: none;
+      color: var(--gray-600);
+      cursor: pointer;
+      font: inherit;
+      padding: 0.25rem 0;
+    }
+    .mode-nav button:hover,
+    .mode-nav button.active { color: var(--primary); font-weight: 600; }
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .back-link {
+      font-size: 0.8rem;
+      color: var(--gray-500);
+      margin-right: 0.25rem;
+    }
+    .back-link:hover { color: var(--primary); }
+    .lang {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+      font-size: 0.875rem;
+    }
+    .lang button {
+      padding: 0.25rem 0.5rem;
+      border: none;
+      border-radius: 0.25rem;
+      background: transparent;
+      color: var(--gray-600);
+      cursor: pointer;
+      font: inherit;
+    }
+    .lang button:hover { background: var(--gray-100); }
+    .lang button.active {
+      background: var(--primary);
+      color: #fff;
+    }
+    .menu-toggle {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      padding: 9px 16px;
-      border-radius: 8px;
-      border: 1px solid var(--line);
-      background: var(--card);
-      color: var(--fg);
+      width: 2.25rem;
+      height: 2.25rem;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      color: var(--gray-700);
+    }
+    .mobile-nav {
+      display: none;
+      border-top: 1px solid var(--gray-200);
+      padding: 0.75rem 1rem 1rem;
+    }
+    .mobile-nav.open { display: block; }
+    .mobile-nav button {
+      display: block;
+      width: 100%;
+      text-align: left;
+      background: none;
+      border: none;
       font: inherit;
+      padding: 0.4rem 0;
+      color: var(--gray-600);
       cursor: pointer;
     }
-    .btn:hover { border-color: var(--accent); }
-    .btn-primary { background: var(--accent); color: #fff; border-color: var(--accent); }
-    .btn-primary:hover { filter: brightness(1.08); }
-    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
-    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-    @media (max-width: 720px) { .grid-2 { grid-template-columns: 1fr; } }
+    .mobile-nav button:hover,
+    .mobile-nav button.active { color: var(--primary); }
+    main {
+      flex: 1;
+      width: 100%;
+      max-width: 80rem;
+      margin: 0 auto;
+      padding: 1.5rem 1rem 3rem;
+    }
+    .hero {
+      text-align: center;
+      margin-bottom: 1.75rem;
+    }
+    .hero h1 {
+      margin: 0 0 0.75rem;
+      font-size: 1.875rem;
+      font-weight: 700;
+      color: var(--gray-900);
+    }
+    .hero p {
+      margin: 0;
+      color: var(--gray-600);
+    }
+    .features-title {
+      text-align: center;
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin: 0 0 1rem;
+    }
+    .feature-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    .feature-card {
+      padding: 1.5rem;
+      border: 1px solid var(--gray-200);
+      border-radius: 0.5rem;
+      background: #fff;
+      cursor: pointer;
+      text-align: left;
+      font: inherit;
+      color: inherit;
+      transition: box-shadow 0.15s, border-color 0.15s;
+    }
+    .feature-card:hover,
+    .feature-card.active {
+      box-shadow: var(--shadow-md);
+      border-color: var(--primary);
+    }
+    .feature-card svg {
+      width: 2rem;
+      height: 2rem;
+      color: var(--primary);
+      margin-bottom: 0.5rem;
+    }
+    .feature-card h3 { margin: 0; font-size: 1rem; }
+    .feature-card p { margin: 0.25rem 0 0; font-size: 0.875rem; color: var(--gray-500); }
+    .work-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin: 0 0 1.25rem;
+      scroll-margin-top: 4.5rem;
+    }
     .drop-zone {
       position: relative;
       min-height: 280px;
+      scroll-margin-top: 4.5rem;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 12px;
-      border: 2px dashed var(--line);
-      border-radius: var(--radius);
+      gap: 0.5rem;
+      border: 2px dashed var(--gray-300);
+      border-radius: 0.5rem;
       text-align: center;
-      color: var(--muted);
-      padding: 24px;
+      color: var(--gray-600);
+      padding: 2rem;
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
     }
+    .drop-zone:hover,
+    .drop-zone.dragging { border-color: var(--primary); background: rgba(79, 70, 229, 0.05); }
     .drop-zone.has-file { border-style: solid; }
-    .drop-zone.dragging { border-color: var(--accent); background: var(--card); }
     .drop-zone input[type="file"] {
       position: absolute;
       inset: 0;
       opacity: 0;
       cursor: pointer;
     }
-    .drop-zone img { max-width: 100%; max-height: 360px; object-fit: contain; border-radius: 8px; border: 1px solid var(--line); }
-    .empty-icon { font-size: 2.5rem; line-height: 1; opacity: 0.35; }
+    .drop-zone img { max-width: 100%; max-height: 12rem; object-fit: contain; border-radius: 0.25rem; }
+    .empty-icon { color: var(--gray-400); }
+    .empty-icon svg { width: 2.5rem; height: 2.5rem; }
+    .msg {
+      margin-top: 0.5rem;
+      padding: 0.75rem 1rem;
+      border-radius: 0.5rem;
+      background: var(--red-50);
+      color: var(--red-500);
+      font-size: 0.875rem;
+      display: none;
+    }
+    .msg.show { display: block; }
+    .options {
+      margin-top: 1rem;
+      padding: 1rem;
+      background: var(--gray-50);
+      border-radius: 0.5rem;
+    }
+    .grid-2 { display: grid; grid-template-columns: 1fr; gap: 1.25rem; }
+    label.field-label {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--gray-600);
+      margin-bottom: 0.35rem;
+    }
+    .range-val { font-weight: 600; color: var(--text); }
+    input[type="range"] { width: 100%; accent-color: var(--primary); }
+    select {
+      width: 100%;
+      padding: 0.5rem 0.75rem;
+      border: 1px solid var(--gray-200);
+      border-radius: 0.5rem;
+      background: #fff;
+      color: var(--text);
+      font: inherit;
+    }
     .stats {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-      gap: 12px;
-      margin: 16px 0;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
     }
     .stat {
-      padding: 12px;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      background: var(--bg);
+      padding: 0.75rem;
+      border-radius: 0.5rem;
+      background: #fff;
+      border: 1px solid var(--gray-200);
+      font-size: 0.875rem;
     }
-    .stat dt { font-size: 0.8rem; color: var(--muted); margin: 0 0 4px; }
-    .stat dd { margin: 0; font-weight: 600; font-size: 1.05rem; }
-    .stat .saved { color: var(--pass); }
-    .toolbar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-top: 16px; }
-    .range-row { margin-bottom: 16px; }
-    .range-val { float: right; font-weight: 600; color: var(--fg); }
-    .msg { margin-top: 12px; padding: 10px 12px; border-radius: 8px; border: 1px solid var(--fail); color: var(--fail); display: none; }
-    .msg.show { display: block; }
+    .stat dt { color: var(--gray-500); margin: 0 0 0.25rem; }
+    .stat dd { margin: 0; font-weight: 600; }
+    .stat .saved { color: var(--accent); }
+    .result-box {
+      margin-top: 1rem;
+      padding: 1rem;
+      background: var(--green-50);
+      border-radius: 0.5rem;
+    }
+    .toolbar { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 1rem; }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0.5rem 1rem;
+      border-radius: 0.5rem;
+      border: 1px solid var(--gray-200);
+      background: #fff;
+      color: var(--text);
+      font: inherit;
+      cursor: pointer;
+    }
+    .btn:hover { border-color: var(--primary); }
+    .btn-primary {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+      min-width: 8rem;
+    }
+    .btn-primary:hover { background: var(--primary-dark); }
+    .btn-accent {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .site-footer {
+      background: var(--gray-50);
+      border-top: 1px solid var(--gray-200);
+      margin-top: auto;
+    }
+    .site-footer .inner {
+      max-width: 80rem;
+      margin: 0 auto;
+      padding: 1.5rem 1rem;
+      text-align: center;
+      font-size: 0.875rem;
+      color: var(--gray-500);
+    }
+    .site-footer p { margin: 0; }
+    .site-footer p + p { margin-top: 0.25rem; }
     .visually-hidden {
       position: absolute;
       width: 1px;
@@ -130,79 +349,315 @@
       padding: 0;
       margin: -1px;
       overflow: hidden;
-      clip: rect(0,0,0,0);
+      clip: rect(0, 0, 0, 0);
       border: 0;
+    }
+    @media (max-width: 767px) {
+      .back-link { display: none; }
+      .logo { font-size: 1.05rem; }
+    }
+    @media (min-width: 768px) {
+      .mode-nav { display: flex; }
+      .menu-toggle { display: none; }
+      .mobile-nav { display: none !important; }
+      .hero h1 { font-size: 1.875rem; }
+      .feature-grid { grid-template-columns: repeat(2, 1fr); }
+      .grid-2 { grid-template-columns: 1fr 1fr; }
+    }
+    @media (min-width: 1024px) {
+      .feature-grid { grid-template-columns: repeat(3, 1fr); }
     }
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <header>
-      <a href="../index.html">← 返回工具首页</a>
-      <h1>图片压缩</h1>
-      <p class="lead">在本地浏览器中压缩图片，不上传服务器。支持 JPEG，若浏览器支持可选 WebP。</p>
-    </header>
-
-    <div class="card">
-      <div class="drop-zone" id="drop-zone">
-        <input type="file" id="file-input" accept="image/*" aria-labelledby="drop-label" />
-        <div id="empty-state">
-          <div class="empty-icon" aria-hidden="true">🖼</div>
-          <p id="drop-label"><strong>点击或拖放图片到此处</strong><br>支持 PNG、JPEG、WebP、GIF 等常见格式</p>
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="logo" href="../index.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect width="18" height="18" x="3" y="3" rx="2" ry="2" />
+          <circle cx="9" cy="9" r="2" />
+          <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
+        </svg>
+        <span data-i18n="site.name">Image Compress Tools</span>
+      </a>
+      <nav class="mode-nav" aria-label="Tools">
+        <button type="button" data-mode="jpeg" class="active" data-i18n="nav.jpeg">JPEG Compress</button>
+        <button type="button" data-mode="png" data-i18n="nav.png">PNG Compress</button>
+        <button type="button" data-mode="webp" data-i18n="nav.webp">WebP Convert</button>
+        <button type="button" data-mode="avif" data-i18n="nav.avif">AVIF Convert</button>
+        <button type="button" data-mode="resize" data-i18n="nav.resize">Image Resize</button>
+      </nav>
+      <div class="header-right">
+        <a class="back-link" href="../index.html" data-i18n="back">Tools</a>
+        <div class="lang">
+          <button type="button" data-lang="zh">中文</button>
+          <button type="button" data-lang="en">EN</button>
         </div>
-        <img id="preview" alt="预览图" hidden />
+        <button type="button" class="menu-toggle" id="menu-toggle" aria-label="Menu" aria-expanded="false">
+          <svg id="icon-menu" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+          <svg id="icon-close" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" hidden><path d="M18 6 6 18M6 6l12 12"/></svg>
+        </button>
       </div>
+    </div>
+    <nav class="mobile-nav" id="mobile-nav">
+      <button type="button" data-mode="jpeg" class="active" data-i18n="nav.jpeg">JPEG Compress</button>
+      <button type="button" data-mode="png" data-i18n="nav.png">PNG Compress</button>
+      <button type="button" data-mode="webp" data-i18n="nav.webp">WebP Convert</button>
+      <button type="button" data-mode="avif" data-i18n="nav.avif">AVIF Convert</button>
+      <button type="button" data-mode="resize" data-i18n="nav.resize">Image Resize</button>
+    </nav>
+  </header>
 
-      <p class="msg" id="error-msg" role="alert"></p>
+  <main>
+    <section class="hero">
+      <h1 data-i18n="home.title">Free Online Image Compression</h1>
+      <p data-i18n="home.subtitle">Compress images directly in your browser. No upload needed, 100% private.</p>
+    </section>
 
-      <div id="controls" hidden>
-        <div class="grid-2" style="margin-top:20px">
+    <h2 class="features-title" data-i18n="home.features">Choose a tool to get started</h2>
+    <div class="feature-grid">
+      <button type="button" class="feature-card active" data-mode="jpeg">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg>
+        <h3 data-i18n="nav.jpeg">JPEG Compress</h3>
+        <p data-i18n="home.jpegDesc">MozJPEG encoder for optimal JPEG compression</p>
+      </button>
+      <button type="button" class="feature-card" data-mode="png">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="3" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
+        <h3 data-i18n="nav.png">PNG Compress</h3>
+        <p data-i18n="home.pngDesc">OxiPNG lossless PNG optimizer</p>
+      </button>
+      <button type="button" class="feature-card" data-mode="webp">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+        <h3 data-i18n="nav.webp">WebP Convert</h3>
+        <p data-i18n="home.webpDesc">Convert images to WebP format</p>
+      </button>
+      <button type="button" class="feature-card" data-mode="avif">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/></svg>
+        <h3 data-i18n="nav.avif">AVIF Convert</h3>
+        <p data-i18n="home.avifDesc">Convert images to next-gen AVIF format</p>
+      </button>
+      <button type="button" class="feature-card" data-mode="resize">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+        <h3 data-i18n="nav.resize">Image Resize</h3>
+        <p data-i18n="home.resizeDesc">Resize images to custom dimensions</p>
+      </button>
+    </div>
+
+    <h2 class="work-title" id="work-title" data-i18n="nav.jpeg">JPEG Compress</h2>
+
+    <div class="drop-zone" id="drop-zone">
+      <input type="file" id="file-input" accept="image/*" aria-labelledby="drop-label" />
+      <div id="empty-state">
+        <div class="empty-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"/><path d="M12 12v9"/><path d="m16 16-4-4-4 4"/>
+          </svg>
+        </div>
+        <p id="drop-label">
+          <strong data-i18n="compress.upload">Drop image here or click to upload</strong><br>
+          <span data-i18n="compress.uploadHint">Supports JPG, PNG, WebP, AVIF (max 50MB)</span>
+        </p>
+      </div>
+      <img id="preview" alt="Preview" hidden />
+    </div>
+
+    <p class="msg" id="error-msg" role="alert"></p>
+
+    <div id="controls" hidden>
+      <div class="options">
+        <div class="grid-2">
           <div>
             <div class="range-row">
-              <label class="field-label" for="quality">压缩质量 <span class="range-val" id="quality-val">0.80</span></label>
+              <label class="field-label" for="quality">
+                <span data-i18n="compress.quality">Quality</span>
+                <span class="range-val" id="quality-val">0.80</span>
+              </label>
               <input type="range" id="quality" min="0.1" max="1" step="0.05" value="0.8" />
             </div>
             <div class="range-row">
-              <label class="field-label" for="max-width">最大宽度（像素） <span class="range-val" id="width-val">1920</span></label>
+              <label class="field-label" for="max-width">
+                <span data-i18n="compress.width">Width</span>
+                <span class="range-val" id="width-val">1920</span>
+              </label>
               <input type="range" id="max-width" min="320" max="4096" step="32" value="1920" />
             </div>
-            <label class="field-label" for="format">输出格式</label>
+            <label class="field-label" for="format"><span data-i18n="compress.format">Format</span></label>
             <select id="format">
-              <option value="image/jpeg">JPEG</option>
-              <option value="image/webp" id="opt-webp">WebP（若支持）</option>
+              <option value="image/jpeg" data-i18n="fmt.jpeg">JPEG</option>
+              <option value="image/png" data-i18n="fmt.png">PNG</option>
+              <option value="image/webp" id="opt-webp">WebP</option>
+              <option value="image/avif" id="opt-avif">AVIF</option>
             </select>
           </div>
-          <div>
+          <div class="result-box">
             <dl class="stats">
               <div class="stat">
-                <dt>原始大小</dt>
+                <dt data-i18n="compress.original">Original</dt>
                 <dd id="size-original">—</dd>
               </div>
               <div class="stat">
-                <dt>压缩后大小</dt>
+                <dt data-i18n="compress.compressed">Compressed</dt>
                 <dd id="size-compressed">—</dd>
               </div>
               <div class="stat">
-                <dt>节省</dt>
+                <dt data-i18n="compress.savingsLabel">Saved</dt>
                 <dd id="size-saved" class="saved">—</dd>
               </div>
               <div class="stat">
-                <dt>输出尺寸</dt>
+                <dt data-i18n="compress.dims">Dimensions</dt>
                 <dd id="size-dims">—</dd>
               </div>
             </dl>
           </div>
         </div>
         <div class="toolbar">
-          <button type="button" class="btn btn-primary" id="download-btn" disabled>下载压缩图</button>
-          <button type="button" class="btn" id="clear-btn">清除并重选</button>
+          <button type="button" class="btn btn-accent" id="download-btn" disabled data-i18n="compress.download">Download</button>
+          <button type="button" class="btn" id="clear-btn" data-i18n="compress.clear">Clear</button>
         </div>
       </div>
     </div>
-  </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="inner">
+      <p data-i18n="footer.powered">Powered by WebAssembly &amp; Squoosh codecs</p>
+      <p data-i18n="footer.privacy">All processing happens in your browser. No data is uploaded.</p>
+    </div>
+  </footer>
 
   <canvas id="work-canvas" class="visually-hidden" aria-hidden="true"></canvas>
 
+  <script src="../assets/i18n.js"></script>
+  <script>
+    var I18N = {
+      en: {
+        "document.title": "Image Compress Tools",
+        "site.name": "Image Compress Tools",
+        "site.description": "Free online image compression tool powered by WebAssembly",
+        "nav.home": "Home",
+        "nav.jpeg": "JPEG Compress",
+        "nav.png": "PNG Compress",
+        "nav.webp": "WebP Convert",
+        "nav.avif": "AVIF Convert",
+        "nav.resize": "Image Resize",
+        "home.title": "Free Online Image Compression",
+        "home.subtitle": "Compress images directly in your browser. No upload needed, 100% private.",
+        "home.features": "Choose a tool to get started",
+        "home.jpegDesc": "MozJPEG encoder for optimal JPEG compression",
+        "home.pngDesc": "OxiPNG lossless PNG optimizer",
+        "home.webpDesc": "Convert images to WebP format",
+        "home.avifDesc": "Convert images to next-gen AVIF format",
+        "home.resizeDesc": "Resize images to custom dimensions",
+        "compress.upload": "Drop image here or click to upload",
+        "compress.uploadHint": "Supports JPG, PNG, WebP, AVIF (max 50MB)",
+        "compress.quality": "Quality",
+        "compress.width": "Width",
+        "compress.format": "Format",
+        "compress.download": "Download",
+        "compress.clear": "Clear",
+        "compress.original": "Original",
+        "compress.compressed": "Compressed",
+        "compress.savingsLabel": "Saved",
+        "compress.dims": "Dimensions",
+        "compress.savings": "Saved {percent}%",
+        "compress.processing": "Processing...",
+        "compress.error.loadFailed": "Compression engine failed to load. Please refresh.",
+        "compress.error.invalidType": "Unsupported file format. Please upload JPG/PNG/WebP/AVIF.",
+        "compress.error.tooLarge": "File too large. Please upload images under 50MB.",
+        "compress.error.timeout": "Compression timed out. Try lower quality or smaller image.",
+        "compress.error.generic": "Compression failed. Try another format or a smaller size.",
+        "compress.error.read": "Could not read this image.",
+        "compress.increased": "Size increased by {size}",
+        "compress.noChange": "No change",
+        "fmt.jpeg": "JPEG",
+        "fmt.png": "PNG",
+        "fmt.webp": "WebP",
+        "fmt.webpUnsupported": "WebP (not supported in this browser)",
+        "fmt.avif": "AVIF",
+        "fmt.avifUnsupported": "AVIF (not supported in this browser)",
+        "footer.powered": "Powered by WebAssembly & Squoosh codecs",
+        "footer.privacy": "All processing happens in your browser. No data is uploaded.",
+        "back": "Tools"
+      },
+      zh: {
+        "document.title": "图片压缩工具",
+        "site.name": "图片压缩工具",
+        "site.description": "基于 WebAssembly 的免费在线图片压缩工具",
+        "nav.home": "首页",
+        "nav.jpeg": "JPEG 压缩",
+        "nav.png": "PNG 压缩",
+        "nav.webp": "WebP 转换",
+        "nav.avif": "AVIF 转换",
+        "nav.resize": "图片缩放",
+        "home.title": "免费在线图片压缩",
+        "home.subtitle": "直接在浏览器中压缩图片，无需上传，100% 隐私安全。",
+        "home.features": "选择一个工具开始",
+        "home.jpegDesc": "MozJPEG 编码器，最优 JPEG 压缩",
+        "home.pngDesc": "OxiPNG 无损 PNG 优化",
+        "home.webpDesc": "将图片转换为 WebP 格式",
+        "home.avifDesc": "将图片转换为新一代 AVIF 格式",
+        "home.resizeDesc": "调整图片到自定义尺寸",
+        "compress.upload": "拖拽图片到此处或点击上传",
+        "compress.uploadHint": "支持 JPG、PNG、WebP、AVIF（最大 50MB）",
+        "compress.quality": "质量",
+        "compress.width": "宽度",
+        "compress.format": "格式",
+        "compress.download": "下载",
+        "compress.clear": "清除并重选",
+        "compress.original": "原图",
+        "compress.compressed": "压缩后",
+        "compress.savingsLabel": "节省",
+        "compress.dims": "输出尺寸",
+        "compress.savings": "节省 {percent}%",
+        "compress.processing": "处理中...",
+        "compress.error.loadFailed": "压缩引擎加载失败，请刷新页面重试。",
+        "compress.error.invalidType": "不支持的文件格式，请上传 JPG/PNG/WebP/AVIF 图片。",
+        "compress.error.tooLarge": "文件过大，请上传 50MB 以内的图片。",
+        "compress.error.timeout": "压缩超时，请尝试降低质量或缩小图片尺寸。",
+        "compress.error.generic": "压缩失败，请尝试其他格式或降低尺寸。",
+        "compress.error.read": "无法读取该图片",
+        "compress.increased": "体积增加 {size}",
+        "compress.noChange": "无变化",
+        "fmt.jpeg": "JPEG",
+        "fmt.png": "PNG",
+        "fmt.webp": "WebP",
+        "fmt.webpUnsupported": "WebP（当前浏览器不支持）",
+        "fmt.avif": "AVIF",
+        "fmt.avifUnsupported": "AVIF（当前浏览器不支持）",
+        "footer.powered": "基于 WebAssembly 和 Squoosh 编解码器",
+        "footer.privacy": "所有处理均在浏览器中完成，不会上传任何数据。",
+        "back": "工具首页"
+      }
+    };
+
+    function t(key) {
+      var lang = (window.WTLang && WTLang.get()) || "en";
+      var pack = I18N[lang] || I18N.en;
+      return pack[key] != null ? pack[key] : key;
+    }
+
+    function refreshCodecOptions() {
+      var opt = document.getElementById("opt-webp");
+      var avif = document.getElementById("opt-avif");
+      if (opt) opt.textContent = opt.disabled ? t("fmt.webpUnsupported") : t("fmt.webp");
+      if (avif) avif.textContent = avif.disabled ? t("fmt.avifUnsupported") : t("fmt.avif");
+    }
+
+    WTLang.apply(I18N);
+    refreshCodecOptions();
+    document.querySelectorAll("[data-lang]").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        WTLang.set(btn.getAttribute("data-lang"), I18N);
+        refreshCodecOptions();
+        var active = document.querySelector(".mode-nav [data-mode].active");
+        if (active) {
+          var title = document.getElementById("work-title");
+          title.setAttribute("data-i18n", active.getAttribute("data-i18n") || "nav.jpeg");
+          title.textContent = t(title.getAttribute("data-i18n"));
+        }
+      });
+    });
+  </script>
   <script>
     (function () {
       var fileInput = document.getElementById('file-input');
@@ -235,7 +690,16 @@
         var opt = document.getElementById('opt-webp');
         if (!webpSupported) {
           opt.disabled = true;
-          opt.textContent = 'WebP（当前浏览器不支持）';
+          opt.textContent = t('fmt.webpUnsupported');
+        }
+        var avifOpt = document.getElementById('opt-avif');
+        var avifOk = false;
+        try {
+          avifOk = test.toDataURL('image/avif').indexOf('data:image/avif') === 0;
+        } catch (e) { avifOk = false; }
+        if (!avifOk && avifOpt) {
+          avifOpt.disabled = true;
+          avifOpt.textContent = t('fmt.avifUnsupported');
         }
       })();
 
@@ -277,7 +741,7 @@
       function loadFile(file) {
         clearError();
         if (!file || !file.type.startsWith('image/')) {
-          showError('请选择有效的图片文件');
+          showError(t('compress.error.invalidType'));
           return;
         }
         originalFile = file;
@@ -294,7 +758,7 @@
         };
         preview.onerror = function () {
           URL.revokeObjectURL(url);
-          showError('无法读取该图片');
+          showError(t('compress.error.read'));
           resetAll();
         };
         preview.src = url;
@@ -329,7 +793,7 @@
 
         canvas.toBlob(function (blob) {
           if (!blob) {
-            showError('压缩失败，请尝试其他格式或降低尺寸');
+            showError(t('compress.error.generic'));
             downloadBtn.disabled = true;
             return;
           }
@@ -341,13 +805,13 @@
           var pct = originalSize > 0 ? (saved / originalSize * 100) : 0;
           var savedEl = document.getElementById('size-saved');
           if (saved > 0) {
-            savedEl.textContent = formatBytes(saved) + '（' + pct.toFixed(1) + '%）';
+            savedEl.textContent = t('compress.savings').replace('{percent}', pct.toFixed(1)) + ' · ' + formatBytes(saved);
             savedEl.classList.add('saved');
           } else if (saved < 0) {
-            savedEl.textContent = '体积增加 ' + formatBytes(-saved);
+            savedEl.textContent = t('compress.increased').replace('{size}', formatBytes(-saved));
             savedEl.classList.remove('saved');
           } else {
-            savedEl.textContent = '无变化';
+            savedEl.textContent = t('compress.noChange');
           }
           downloadBtn.disabled = false;
         }, mime, q);
@@ -386,7 +850,10 @@
 
       downloadBtn.addEventListener('click', function () {
         if (!compressedBlob) return;
-        var ext = formatEl.value === 'image/webp' && webpSupported ? 'webp' : 'jpg';
+        var ext = 'jpg';
+        if (formatEl.value === 'image/webp' && webpSupported) ext = 'webp';
+        else if (formatEl.value === 'image/png') ext = 'png';
+        else if (formatEl.value === 'image/avif') ext = 'avif';
         var base = originalFile ? originalFile.name.replace(/\.[^.]+$/, '') : 'compressed';
         var a = document.createElement('a');
         a.href = URL.createObjectURL(compressedBlob);
@@ -396,6 +863,55 @@
       });
 
       clearBtn.addEventListener('click', resetAll);
+
+      var MODE_MIME = {
+        jpeg: 'image/jpeg',
+        png: 'image/png',
+        webp: 'image/webp',
+        avif: 'image/avif',
+        resize: null
+      };
+
+      function setMode(mode) {
+        document.querySelectorAll('[data-mode]').forEach(function (el) {
+          el.classList.toggle('active', el.getAttribute('data-mode') === mode);
+        });
+        var title = document.getElementById('work-title');
+        var key = 'nav.' + (mode === 'resize' ? 'resize' : mode);
+        if (mode === 'jpeg') key = 'nav.jpeg';
+        if (mode === 'png') key = 'nav.png';
+        if (mode === 'webp') key = 'nav.webp';
+        if (mode === 'avif') key = 'nav.avif';
+        title.setAttribute('data-i18n', key);
+        title.textContent = t(key);
+        if (MODE_MIME[mode]) {
+          var opt = formatEl.querySelector('option[value="' + MODE_MIME[mode] + '"]');
+          if (opt && !opt.disabled) formatEl.value = MODE_MIME[mode];
+        }
+        formatEl.dispatchEvent(new Event('change'));
+        document.getElementById('drop-zone').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+
+      document.querySelectorAll('[data-mode]').forEach(function (btn) {
+        btn.addEventListener('click', function () { setMode(btn.getAttribute('data-mode')); });
+      });
+
+      var menuToggle = document.getElementById('menu-toggle');
+      var mobileNav = document.getElementById('mobile-nav');
+      menuToggle.addEventListener('click', function () {
+        var open = mobileNav.classList.toggle('open');
+        menuToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+        document.getElementById('icon-menu').hidden = open;
+        document.getElementById('icon-close').hidden = !open;
+      });
+      mobileNav.querySelectorAll('[data-mode]').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          mobileNav.classList.remove('open');
+          menuToggle.setAttribute('aria-expanded', 'false');
+          document.getElementById('icon-menu').hidden = false;
+          document.getElementById('icon-close').hidden = true;
+        });
+      });
     })();
   </script>
 </body>

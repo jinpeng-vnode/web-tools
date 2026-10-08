@@ -1,252 +1,482 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>JSON 工具</title>
+  <title>JSON Tools</title>
   <style>
-    :root {
-      color-scheme: light dark;
-      --bg: #f4f1ea;
-      --fg: #1c1915;
-      --muted: #5c564c;
-      --card: #fffdf8;
-      --line: #d9d2c5;
-      --accent: #1f4d3a;
-      --pass: #15803d;
-      --fail: #b91c1c;
-      --warn: #b45309;
-      --radius: 10px;
-    }
-    @media (prefers-color-scheme: dark) {
-      :root {
-        --bg: #161411;
-        --fg: #f3eee4;
-        --muted: #b4ab9c;
-        --card: #211d18;
-        --line: #3a342c;
-        --accent: #8fbfa6;
-      }
-    }
-    * { box-sizing: border-box; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
-      margin: 0;
-      font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
-      background: var(--bg);
-      color: var(--fg);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #0f1117;
+      color: #e1e4e8;
       line-height: 1.5;
+      min-height: 100vh;
     }
-    a { color: var(--accent); }
-    a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-    .wrap { max-width: 960px; margin: 0 auto; padding: 24px 20px 64px; }
-    h1 { font-size: 1.6rem; font-weight: 650; margin: 12px 0 4px; }
-    .lead { color: var(--muted); margin: 0 0 20px; }
-    .tabs {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      margin-bottom: 20px;
-      border-bottom: 1px solid var(--line);
-      padding-bottom: 12px;
-    }
-    .tabs [role="tab"] {
-      padding: 8px 14px;
-      border: 1px solid transparent;
-      border-radius: 8px;
-      background: transparent;
-      color: var(--muted);
-      font: inherit;
-      cursor: pointer;
-    }
-    .tabs [role="tab"]:hover { color: var(--fg); background: var(--card); }
-    .tabs [role="tab"][aria-selected="true"] {
-      color: var(--fg);
-      border-color: var(--line);
-      background: var(--card);
-      font-weight: 600;
-    }
-    .tabs [role="tab"]:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-    [role="tabpanel"] { display: none; }
-    [role="tabpanel"].active { display: block; }
-    .card {
-      background: var(--card);
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-      padding: 20px;
-    }
-    label.field-label { display: block; font-size: 0.85rem; font-weight: 600; color: var(--muted); margin-bottom: 6px; }
-    textarea, input[type="text"] {
-      width: 100%;
-      padding: 10px 12px;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      background: var(--bg);
-      color: var(--fg);
-      font: inherit;
-      font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
-      font-size: 0.88rem;
-    }
-    textarea { min-height: 220px; resize: vertical; }
-    textarea:focus-visible, input:focus-visible, button:focus-visible, select:focus-visible {
-      outline: 2px solid var(--accent);
+    a { color: #58a6ff; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    a:focus-visible, button:focus-visible, textarea:focus-visible, input:focus-visible, select:focus-visible {
+      outline: 2px solid #58a6ff;
       outline-offset: 2px;
     }
-    .toolbar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin: 12px 0; }
-    .btn {
-      display: inline-flex;
+    .header {
+      background: #161b22;
+      border-bottom: 1px solid #30363d;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .header-inner {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 1rem;
+      height: 56px;
+      display: flex;
       align-items: center;
-      justify-content: center;
-      padding: 9px 16px;
-      border-radius: 8px;
-      border: 1px solid var(--line);
-      background: var(--card);
-      color: var(--fg);
+      gap: 1.25rem;
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: #58a6ff;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 1.1rem;
+      white-space: nowrap;
+    }
+    .logo:hover { text-decoration: none; }
+    .logo svg { flex-shrink: 0; }
+    .back {
+      color: #8b949e;
+      font-size: 0.8rem;
+      white-space: nowrap;
+    }
+    .back:hover { color: #e1e4e8; text-decoration: none; }
+    .nav {
+      display: flex;
+      gap: 0.25rem;
+      overflow-x: auto;
+      flex: 1;
+      min-width: 0;
+    }
+    .nav [role="tab"] {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.5rem 0.75rem;
+      border-radius: 6px;
+      border: none;
+      background: transparent;
+      color: #8b949e;
       font: inherit;
+      font-size: 0.85rem;
+      white-space: nowrap;
       cursor: pointer;
+      transition: all 0.15s;
     }
-    .btn:hover { border-color: var(--accent); }
-    .btn-primary { background: var(--accent); color: #fff; border-color: var(--accent); }
-    .btn-primary:hover { filter: brightness(1.08); }
-    .msg {
-      padding: 10px 12px;
-      border-radius: 8px;
-      font-size: 0.9rem;
-      margin-top: 10px;
-    }
-    .msg.err { background: color-mix(in srgb, var(--fail) 12%, var(--card)); border: 1px solid var(--fail); color: var(--fail); }
-    .msg.ok { background: color-mix(in srgb, var(--pass) 12%, var(--card)); border: 1px solid var(--pass); color: var(--pass); }
-    .msg.info { background: color-mix(in srgb, var(--accent) 10%, var(--card)); border: 1px solid var(--line); color: var(--muted); }
-    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-    @media (max-width: 720px) { .grid-2 { grid-template-columns: 1fr; } }
-    .convert-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 12px; }
-    select {
-      padding: 9px 12px;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      background: var(--bg);
-      color: var(--fg);
+    .nav [role="tab"]:hover { color: #e1e4e8; background: #21262d; }
+    .nav [role="tab"][aria-selected="true"] { color: #58a6ff; background: #1c2128; }
+    .lang { display: flex; gap: 4px; flex-shrink: 0; }
+    .lang button {
+      background: transparent;
+      border: 1px solid transparent;
+      color: #8b949e;
+      padding: 4px 10px;
+      border-radius: 6px;
+      cursor: pointer;
       font: inherit;
+      font-size: 12px;
     }
+    .lang button.active, .lang button:hover {
+      color: #e1e4e8;
+      background: #21262d;
+      border-color: #30363d;
+    }
+    .main {
+      max-width: 1400px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 1.5rem 1rem 3rem;
+    }
+    [role="tabpanel"] { display: none; }
+    [role="tabpanel"].active { display: flex; flex-direction: column; gap: 1rem; }
+    .page-header h1 { font-size: 1.5rem; color: #e1e4e8; font-weight: 600; }
+    .page-header p { color: #8b949e; margin-top: 0.25rem; }
+    .toolbar { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
+    .toolbar-right { margin-left: auto; display: flex; gap: 0.25rem; }
+    .btn {
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      border: 1px solid #30363d;
+      background: #21262d;
+      color: #e1e4e8;
+      cursor: pointer;
+      font: inherit;
+      font-size: 0.85rem;
+    }
+    .btn:hover { background: #30363d; }
+    .btn-primary { background: #238636; border-color: #2ea043; color: #fff; }
+    .btn-primary:hover { background: #2ea043; }
+    .editors { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .editor-panel { display: flex; flex-direction: column; gap: 0.5rem; min-width: 0; }
+    .editor-panel label, label.field-label {
+      font-size: 0.8rem;
+      color: #8b949e;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-weight: 600;
+    }
+    textarea, input[type="text"], select, pre.out {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #30363d;
+      border-radius: 6px;
+      background: #0d1117;
+      color: #e1e4e8;
+      font-family: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace;
+      font-size: 0.85rem;
+    }
+    textarea { min-height: 360px; resize: vertical; line-height: 1.5; }
+    .msg {
+      padding: 0.75rem;
+      border-radius: 6px;
+      font-size: 0.85rem;
+    }
+    .msg.err { background: #3d1f1f; border: 1px solid #f85149; color: #f85149; }
+    .msg.ok { background: #16351f; border: 1px solid #2ea043; color: #3fb950; }
+    .msg.info { background: #161b22; border: 1px solid #30363d; color: #8b949e; }
+    .convert-row { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; }
+    .convert-row .field-label { margin: 0; }
+    select { width: auto; min-width: 8rem; }
     pre.out {
       margin: 0;
-      padding: 12px;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      background: var(--bg);
       overflow: auto;
       max-height: 360px;
-      font-size: 0.85rem;
+      min-height: 360px;
       white-space: pre-wrap;
       word-break: break-all;
     }
-    .diff-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; font-family: ui-monospace, monospace; font-size: 0.85rem; }
-    .diff-list li { padding: 8px 10px; border-radius: 6px; border: 1px solid var(--line); }
-    .diff-add { border-color: var(--pass) !important; }
-    .diff-del { border-color: var(--fail) !important; }
-    .diff-chg { border-color: var(--warn) !important; }
+    .diff-list { list-style: none; display: flex; flex-direction: column; gap: 6px; font-family: ui-monospace, Consolas, monospace; font-size: 0.85rem; }
+    .diff-list li { padding: 8px 10px; border-radius: 6px; border: 1px solid #30363d; background: #161b22; }
+    .diff-add { border-color: #2ea043 !important; background: #16351f; }
+    .diff-del { border-color: #f85149 !important; background: #3d1f1f; }
+    .diff-chg { border-color: #d29922 !important; background: #3d2f12; }
     .hidden { display: none !important; }
+    .seo {
+      margin-top: 1rem;
+      padding: 1.5rem;
+      background: #161b22;
+      border-radius: 8px;
+      border: 1px solid #30363d;
+    }
+    .seo h2 { font-size: 1.1rem; margin-bottom: 0.5rem; }
+    .seo p, .seo li { color: #8b949e; line-height: 1.6; }
+    .seo ul { padding-left: 1.5rem; margin-top: 0.5rem; }
+    @media (max-width: 768px) {
+      .header-inner { height: auto; flex-wrap: wrap; padding: 8px 1rem; gap: 8px; }
+      .nav { width: 100%; order: 3; padding-bottom: 4px; }
+      .editors { grid-template-columns: 1fr; }
+      textarea, pre.out { min-height: 220px; }
+      .toolbar-right { margin-left: 0; }
+    }
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <p class="top"><a class="back" href="../index.html">← 返回工具列表</a></p>
-    <h1>JSON 工具</h1>
-    <p class="lead">格式化、校验、压缩、格式转换、对比与 JSONPath 查询。纯静态页面，无需构建。</p>
-
-    <div class="tabs" role="tablist" aria-label="JSON 功能">
-      <button type="button" role="tab" id="tab-fmt" aria-selected="true" aria-controls="panel-fmt">格式化</button>
-      <button type="button" role="tab" id="tab-val" aria-selected="false" aria-controls="panel-val">校验</button>
-      <button type="button" role="tab" id="tab-min" aria-selected="false" aria-controls="panel-min">压缩</button>
-      <button type="button" role="tab" id="tab-cvt" aria-selected="false" aria-controls="panel-cvt">转换</button>
-      <button type="button" role="tab" id="tab-cmp" aria-selected="false" aria-controls="panel-cmp">对比</button>
-      <button type="button" role="tab" id="tab-path" aria-selected="false" aria-controls="panel-path">JSONPath</button>
-    </div>
-
-    <div id="panel-fmt" class="card active" role="tabpanel" aria-labelledby="tab-fmt">
-      <label class="field-label" for="fmt-in">JSON 输入</label>
-      <textarea id="fmt-in" spellcheck="false" placeholder='{"hello":"world"}'></textarea>
-      <div class="toolbar">
-        <button type="button" class="btn btn-primary" id="btn-fmt">格式化</button>
-        <button type="button" class="btn" id="btn-fmt-copy">复制</button>
+  <header class="header">
+    <div class="header-inner">
+      <a class="logo" href="../index.html">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path d="M8 3H7a2 2 0 0 0-2 2v5a2 2 0 0 1-2 2 2 2 0 0 1 2 2v5c0 1.1.9 2 2 2h1"/>
+          <path d="M16 21h1a2 2 0 0 0 2-2v-5a2 2 0 0 1 2-2 2 2 0 0 1-2-2V5a2 2 0 0 0-2-2h-1"/>
+        </svg>
+        <span>JSON Tools</span>
+      </a>
+      <a class="back" href="../index.html" data-i18n="back">← All tools</a>
+      <div class="nav" role="tablist" aria-label="JSON Tools">
+        <button type="button" role="tab" id="tab-fmt" aria-selected="true" aria-controls="panel-fmt" data-i18n="tabFmt">Formatter</button>
+        <button type="button" role="tab" id="tab-val" aria-selected="false" aria-controls="panel-val" data-i18n="tabVal">Validator</button>
+        <button type="button" role="tab" id="tab-min" aria-selected="false" aria-controls="panel-min" data-i18n="tabMin">Minify</button>
+        <button type="button" role="tab" id="tab-cvt" aria-selected="false" aria-controls="panel-cvt" data-i18n="tabCvt">Converter</button>
+        <button type="button" role="tab" id="tab-cmp" aria-selected="false" aria-controls="panel-cmp" data-i18n="tabDiff">Diff</button>
+        <button type="button" role="tab" id="tab-path" aria-selected="false" aria-controls="panel-path" data-i18n="tabPath">JSONPath</button>
       </div>
-      <label class="field-label" for="fmt-out">输出</label>
-      <textarea id="fmt-out" readonly spellcheck="false" aria-readonly="true"></textarea>
+      <div class="lang">
+        <button type="button" data-lang="zh">中文</button>
+        <button type="button" data-lang="en">EN</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="main">
+    <div id="panel-fmt" class="active" role="tabpanel" aria-labelledby="tab-fmt">
+      <div class="page-header">
+        <h1 data-i18n="fmtTitle">JSON Formatter &amp; Beautifier</h1>
+        <p data-i18n="fmtLead">Paste your JSON data and format it with proper indentation.</p>
+      </div>
+      <div class="toolbar">
+        <button type="button" class="btn btn-primary" id="btn-fmt" data-i18n="fmtBtn">Format JSON</button>
+        <button type="button" class="btn" id="btn-fmt-sample" data-i18n="loadSample">Load Sample</button>
+        <div class="toolbar-right">
+          <button type="button" class="btn" id="btn-fmt-copy" data-i18n="copy">Copy</button>
+        </div>
+      </div>
+      <div class="editors">
+        <div class="editor-panel">
+          <label class="field-label" for="fmt-in" data-i18n="input">Input</label>
+          <textarea id="fmt-in" spellcheck="false" placeholder='{"hello":"world"}'></textarea>
+        </div>
+        <div class="editor-panel">
+          <label class="field-label" for="fmt-out" data-i18n="output">Output</label>
+          <textarea id="fmt-out" readonly spellcheck="false" aria-readonly="true"></textarea>
+        </div>
+      </div>
       <div id="fmt-msg" class="msg hidden" role="status"></div>
     </div>
 
-    <div id="panel-val" class="card" role="tabpanel" aria-labelledby="tab-val" hidden>
-      <label class="field-label" for="val-in">JSON 输入</label>
-      <textarea id="val-in" spellcheck="false"></textarea>
+    <div id="panel-val" role="tabpanel" aria-labelledby="tab-val" hidden>
+      <div class="page-header">
+        <h1 data-i18n="valTitle">JSON Validator</h1>
+        <p data-i18n="valLead">Check whether your JSON is syntactically valid.</p>
+      </div>
       <div class="toolbar">
-        <button type="button" class="btn btn-primary" id="btn-val">校验</button>
+        <button type="button" class="btn btn-primary" id="btn-val" data-i18n="valBtn">Validate</button>
+        <button type="button" class="btn" id="btn-val-sample" data-i18n="loadSample">Load Sample</button>
+      </div>
+      <div class="editor-panel">
+        <label class="field-label" for="val-in" data-i18n="input">Input</label>
+        <textarea id="val-in" spellcheck="false"></textarea>
       </div>
       <div id="val-msg" class="msg hidden" role="status"></div>
     </div>
 
-    <div id="panel-min" class="card" role="tabpanel" aria-labelledby="tab-min" hidden>
-      <label class="field-label" for="min-in">JSON 输入</label>
-      <textarea id="min-in" spellcheck="false"></textarea>
-      <div class="toolbar">
-        <button type="button" class="btn btn-primary" id="btn-min">压缩</button>
-        <button type="button" class="btn" id="btn-min-copy">复制</button>
+    <div id="panel-min" role="tabpanel" aria-labelledby="tab-min" hidden>
+      <div class="page-header">
+        <h1 data-i18n="minTitle">JSON Minify</h1>
+        <p data-i18n="minLead">Compress JSON by removing whitespace.</p>
       </div>
-      <label class="field-label" for="min-out">输出</label>
-      <textarea id="min-out" readonly spellcheck="false"></textarea>
+      <div class="toolbar">
+        <button type="button" class="btn btn-primary" id="btn-min" data-i18n="minBtn">Minify</button>
+        <button type="button" class="btn" id="btn-min-sample" data-i18n="loadSample">Load Sample</button>
+        <div class="toolbar-right">
+          <button type="button" class="btn" id="btn-min-copy" data-i18n="copy">Copy</button>
+        </div>
+      </div>
+      <div class="editors">
+        <div class="editor-panel">
+          <label class="field-label" for="min-in" data-i18n="input">Input</label>
+          <textarea id="min-in" spellcheck="false"></textarea>
+        </div>
+        <div class="editor-panel">
+          <label class="field-label" for="min-out" data-i18n="output">Output</label>
+          <textarea id="min-out" readonly spellcheck="false"></textarea>
+        </div>
+      </div>
       <div id="min-msg" class="msg hidden" role="status"></div>
     </div>
 
-    <div id="panel-cvt" class="card" role="tabpanel" aria-labelledby="tab-cvt" hidden>
-      <label class="field-label" for="cvt-in">JSON 输入</label>
-      <textarea id="cvt-in" spellcheck="false"></textarea>
-      <div class="convert-row">
-        <label class="field-label" for="cvt-type" style="margin:0">目标格式</label>
-        <select id="cvt-type" aria-label="目标格式">
+    <div id="panel-cvt" role="tabpanel" aria-labelledby="tab-cvt" hidden>
+      <div class="page-header">
+        <h1 data-i18n="cvtTitle">JSON Converter</h1>
+        <p data-i18n="cvtLead">Convert JSON to YAML, CSV, or XML.</p>
+      </div>
+      <div class="convert-row toolbar">
+        <label class="field-label" for="cvt-type" data-i18n="targetFmt">Target</label>
+        <select id="cvt-type" aria-label="Target format">
           <option value="yaml">YAML</option>
           <option value="csv">CSV</option>
           <option value="xml">XML</option>
         </select>
-        <button type="button" class="btn btn-primary" id="btn-cvt">转换</button>
-        <button type="button" class="btn" id="btn-cvt-copy">复制</button>
+        <button type="button" class="btn btn-primary" id="btn-cvt" data-i18n="cvtBtn">Convert</button>
+        <button type="button" class="btn" id="btn-cvt-sample" data-i18n="loadSample">Load Sample</button>
+        <button type="button" class="btn" id="btn-cvt-copy" data-i18n="copy">Copy</button>
       </div>
-      <label class="field-label" for="cvt-out">输出</label>
-      <pre class="out" id="cvt-out"></pre>
+      <div class="editors">
+        <div class="editor-panel">
+          <label class="field-label" for="cvt-in" data-i18n="input">Input</label>
+          <textarea id="cvt-in" spellcheck="false"></textarea>
+        </div>
+        <div class="editor-panel">
+          <label class="field-label" for="cvt-out" data-i18n="output">Output</label>
+          <pre class="out" id="cvt-out"></pre>
+        </div>
+      </div>
       <div id="cvt-msg" class="msg hidden" role="status"></div>
     </div>
 
-    <div id="panel-cmp" class="card" role="tabpanel" aria-labelledby="tab-cmp" hidden>
-      <div class="grid-2">
-        <div>
-          <label class="field-label" for="cmp-a">JSON A</label>
-          <textarea id="cmp-a" spellcheck="false"></textarea>
-        </div>
-        <div>
-          <label class="field-label" for="cmp-b">JSON B</label>
-          <textarea id="cmp-b" spellcheck="false"></textarea>
-        </div>
+    <div id="panel-cmp" role="tabpanel" aria-labelledby="tab-cmp" hidden>
+      <div class="page-header">
+        <h1 data-i18n="diffTitle">JSON Diff</h1>
+        <p data-i18n="diffLead">Compare two JSON objects and list added, removed, and changed paths.</p>
       </div>
       <div class="toolbar">
-        <button type="button" class="btn btn-primary" id="btn-cmp">对比</button>
+        <button type="button" class="btn btn-primary" id="btn-cmp" data-i18n="diffBtn">Compare</button>
+        <button type="button" class="btn" id="btn-cmp-sample" data-i18n="loadSample">Load Sample</button>
+      </div>
+      <div class="editors">
+        <div class="editor-panel">
+          <label class="field-label" for="cmp-a" data-i18n="jsonA">Left (Original)</label>
+          <textarea id="cmp-a" spellcheck="false"></textarea>
+        </div>
+        <div class="editor-panel">
+          <label class="field-label" for="cmp-b" data-i18n="jsonB">Right (Modified)</label>
+          <textarea id="cmp-b" spellcheck="false"></textarea>
+        </div>
       </div>
       <ul class="diff-list" id="cmp-list" aria-live="polite"></ul>
       <div id="cmp-msg" class="msg hidden" role="status"></div>
     </div>
 
-    <div id="panel-path" class="card" role="tabpanel" aria-labelledby="tab-path" hidden>
-      <label class="field-label" for="path-in">JSON 输入</label>
-      <textarea id="path-in" spellcheck="false"></textarea>
-      <label class="field-label" for="path-q">JSONPath（支持 $.a.b、$.arr[0]、$..name）</label>
-      <input type="text" id="path-q" value="$." spellcheck="false" />
-      <div class="toolbar">
-        <button type="button" class="btn btn-primary" id="btn-path">查询</button>
-        <button type="button" class="btn" id="btn-path-copy">复制结果</button>
+    <div id="panel-path" role="tabpanel" aria-labelledby="tab-path" hidden>
+      <div class="page-header">
+        <h1 data-i18n="pathTitle">JSON Path Query</h1>
+        <p data-i18n="pathLead">Extract data with $.a.b, $.arr[0], or $..name.</p>
       </div>
-      <pre class="out" id="path-out"></pre>
+      <div class="toolbar">
+        <label class="field-label" for="path-q" data-i18n="pathQ">JSONPath</label>
+        <input type="text" id="path-q" value="$." spellcheck="false" style="flex:1;min-width:12rem" />
+        <button type="button" class="btn btn-primary" id="btn-path" data-i18n="pathBtn">Query</button>
+        <button type="button" class="btn" id="btn-path-sample" data-i18n="loadSample">Load Sample</button>
+        <button type="button" class="btn" id="btn-path-copy" data-i18n="copyResult">Copy result</button>
+      </div>
+      <div class="editors">
+        <div class="editor-panel">
+          <label class="field-label" for="path-in" data-i18n="input">Input</label>
+          <textarea id="path-in" spellcheck="false"></textarea>
+        </div>
+        <div class="editor-panel">
+          <label class="field-label" for="path-out" data-i18n="output">Output</label>
+          <pre class="out" id="path-out"></pre>
+        </div>
+      </div>
       <div id="path-msg" class="msg hidden" role="status"></div>
     </div>
-  </div>
+  </main>
 
+  <script src="../assets/i18n.js"></script>
   <script>
+var I18N = {
+  en: {
+    "document.title": "JSON Tools",
+    back: "← All tools",
+    tabFmt: "Formatter",
+    tabVal: "Validator",
+    tabMin: "Minify",
+    tabCvt: "Converter",
+    tabDiff: "Diff",
+    tabPath: "JSONPath",
+    fmtTitle: "JSON Formatter & Beautifier",
+    fmtLead: "Paste your JSON data and format it with proper indentation.",
+    fmtBtn: "Format JSON",
+    loadSample: "Load Sample",
+    copy: "Copy",
+    input: "Input",
+    output: "Output",
+    valTitle: "JSON Validator",
+    valLead: "Check whether your JSON is syntactically valid.",
+    valBtn: "Validate",
+    minTitle: "JSON Minify",
+    minLead: "Compress JSON by removing whitespace.",
+    minBtn: "Minify",
+    cvtTitle: "JSON Converter",
+    cvtLead: "Convert JSON to YAML, CSV, or XML.",
+    targetFmt: "Target",
+    cvtBtn: "Convert",
+    diffTitle: "JSON Diff",
+    diffLead: "Compare two JSON objects and list added, removed, and changed paths.",
+    diffBtn: "Compare",
+    jsonA: "Left (Original)",
+    jsonB: "Right (Modified)",
+    pathTitle: "JSON Path Query",
+    pathLead: "Extract data with $.a.b, $.arr[0], or $..name.",
+    pathQ: "JSONPath",
+    pathBtn: "Query",
+    copyResult: "Copy result",
+    copied: "Copied",
+    errEmpty: "JSON is empty. Please enter content.",
+    fmtOk: "Formatted successfully",
+    valOk: "Valid: JSON syntax is correct",
+    valBad: "Invalid: ",
+    minOk: "Minified successfully",
+    errCsv: "CSV conversion requires an array of objects at the root",
+    cvtOk: "Conversion complete",
+    diffNone: "No differences after flattening",
+    diffCount: "Found %s difference(s)",
+    errPath: "Enter a JSONPath",
+    errDeep: "$.. must be followed by a field name",
+    errPathStart: "Path must start with $. or $..",
+    errParsePath: "Cannot parse path: ",
+    errNoValue: "No value at ",
+    pathOk: "Query succeeded"
+  },
+  zh: {
+    "document.title": "JSON 工具",
+    back: "← 返回工具列表",
+    tabFmt: "格式化",
+    tabVal: "校验",
+    tabMin: "压缩",
+    tabCvt: "转换",
+    tabDiff: "对比",
+    tabPath: "JSONPath",
+    fmtTitle: "JSON 格式化",
+    fmtLead: "粘贴 JSON，按缩进美化输出。",
+    fmtBtn: "格式化",
+    loadSample: "加载示例",
+    copy: "复制",
+    input: "输入",
+    output: "输出",
+    valTitle: "JSON 校验",
+    valLead: "检查 JSON 语法是否正确。",
+    valBtn: "校验",
+    minTitle: "JSON 压缩",
+    minLead: "去掉空白，压缩 JSON。",
+    minBtn: "压缩",
+    cvtTitle: "JSON 转换",
+    cvtLead: "把 JSON 转成 YAML、CSV 或 XML。",
+    targetFmt: "目标格式",
+    cvtBtn: "转换",
+    diffTitle: "JSON 对比",
+    diffLead: "比较两份 JSON，列出新增、删除和变更路径。",
+    diffBtn: "对比",
+    jsonA: "左侧（原始）",
+    jsonB: "右侧（修改后）",
+    pathTitle: "JSONPath 查询",
+    pathLead: "支持 $.a.b、$.arr[0]、$..name。",
+    pathQ: "JSONPath",
+    pathBtn: "查询",
+    copyResult: "复制结果",
+    copied: "已复制",
+    errEmpty: "JSON 为空，请输入内容",
+    fmtOk: "格式化成功",
+    valOk: "有效：JSON 语法正确",
+    valBad: "无效：",
+    minOk: "压缩成功",
+    errCsv: "CSV 转换要求根节点为对象数组",
+    cvtOk: "转换完成",
+    diffNone: "两份 JSON 扁平化后无差异",
+    diffCount: "发现 %s 处差异",
+    errPath: "请输入 JSONPath",
+    errDeep: "$.. 后需跟字段名",
+    errPathStart: "路径需以 $. 或 $.. 开头",
+    errParsePath: "无法解析路径：",
+    errNoValue: "路径在此处无值：",
+    pathOk: "查询成功"
+  }
+};
+function tr(key) {
+  var pack = I18N[WTLang.get()] || I18N.en;
+  return pack[key] || key;
+}
+WTLang.apply(I18N);
+document.querySelectorAll("[data-lang]").forEach(function (btn) {
+  btn.addEventListener("click", function () { WTLang.set(btn.getAttribute("data-lang"), I18N); });
+});
+
 (function () {
+  var SAMPLE = '{"name":"JSON Tools","version":"1.0","features":["format","validate","minify","convert","diff","path"],"nested":{"key":"value","array":[1,2,3]}}';
+  var SAMPLE_CSV = '[{"name":"Ada","role":"engineer"},{"name":"Lin","role":"designer"}]';
+  var SAMPLE_PATH = '{\n  "store": {\n    "book": [\n      {"category":"reference","author":"Nigel Rees","title":"Sayings of the Century","price":8.95},\n      {"category":"fiction","author":"Evelyn Waugh","title":"Sword of Honour","price":12.99}\n    ],\n    "bicycle": {"color":"red","price":19.95}\n  }\n}';
+
   function showMsg(el, text, kind) {
     el.textContent = text;
     el.classList.remove('hidden', 'ok', 'err', 'info');
@@ -258,19 +488,21 @@
   }
 
   function parseJson(text) {
-    var t = (text || '').trim();
-    if (!t) throw new Error('JSON 为空，请输入内容');
-    return JSON.parse(t);
+    var raw = (text || '').trim();
+    if (!raw) throw new Error(tr('errEmpty'));
+    return JSON.parse(raw);
   }
 
   function copyText(text, btn) {
     if (!text) return;
     navigator.clipboard.writeText(text).then(function () {
-      var old = btn.textContent;
-      btn.textContent = '已复制';
-      setTimeout(function () { btn.textContent = old; }, 1200);
+      var key = btn.getAttribute('data-i18n');
+      btn.textContent = tr('copied');
+      setTimeout(function () {
+        btn.textContent = key ? tr(key) : btn.textContent;
+      }, 1200);
     }).catch(function () {
-      window.prompt('复制以下内容', text);
+      window.prompt(tr('copy'), text);
     });
   }
 
@@ -301,7 +533,7 @@
     try {
       var obj = parseJson(fmtIn.value);
       fmtOut.value = JSON.stringify(obj, null, 2);
-      showMsg(fmtMsg, '格式化成功', 'ok');
+      showMsg(fmtMsg, tr('fmtOk'), 'ok');
     } catch (e) {
       fmtOut.value = '';
       showMsg(fmtMsg, e.message || String(e), 'err');
@@ -310,6 +542,10 @@
   document.getElementById('btn-fmt-copy').addEventListener('click', function () {
     copyText(fmtOut.value, this);
   });
+  document.getElementById('btn-fmt-sample').addEventListener('click', function () {
+    fmtIn.value = JSON.stringify(JSON.parse(SAMPLE), null, 2);
+    document.getElementById('btn-fmt').click();
+  });
 
   /* validate */
   var valIn = document.getElementById('val-in');
@@ -317,10 +553,13 @@
   document.getElementById('btn-val').addEventListener('click', function () {
     try {
       parseJson(valIn.value);
-      showMsg(valMsg, '有效：JSON 语法正确', 'ok');
+      showMsg(valMsg, tr('valOk'), 'ok');
     } catch (e) {
-      showMsg(valMsg, '无效：' + (e.message || String(e)), 'err');
+      showMsg(valMsg, tr('valBad') + (e.message || String(e)), 'err');
     }
+  });
+  document.getElementById('btn-val-sample').addEventListener('click', function () {
+    valIn.value = JSON.stringify(JSON.parse(SAMPLE), null, 2);
   });
 
   /* minify */
@@ -331,7 +570,7 @@
     try {
       var obj = parseJson(minIn.value);
       minOut.value = JSON.stringify(obj);
-      showMsg(minMsg, '压缩成功', 'ok');
+      showMsg(minMsg, tr('minOk'), 'ok');
     } catch (e) {
       minOut.value = '';
       showMsg(minMsg, e.message || String(e), 'err');
@@ -339,6 +578,10 @@
   });
   document.getElementById('btn-min-copy').addEventListener('click', function () {
     copyText(minOut.value, this);
+  });
+  document.getElementById('btn-min-sample').addEventListener('click', function () {
+    minIn.value = JSON.stringify(JSON.parse(SAMPLE), null, 2);
+    document.getElementById('btn-min').click();
   });
 
   /* convert */
@@ -377,7 +620,7 @@
   }
 
   function jsonToCsv(root) {
-    if (!Array.isArray(root)) throw new Error('CSV 转换要求根节点为对象数组');
+    if (!Array.isArray(root)) throw new Error(tr('errCsv'));
     if (!root.length) return '';
     var keys = [];
     root.forEach(function (row) {
@@ -434,7 +677,7 @@
       else if (type === 'csv') out = jsonToCsv(obj);
       else out = '<?xml version="1.0" encoding="UTF-8"?>\n' + jsonToXml(obj, 'root');
       cvtOut.textContent = out;
-      showMsg(cvtMsg, '转换完成', 'ok');
+      showMsg(cvtMsg, tr('cvtOk'), 'ok');
     } catch (e) {
       cvtOut.textContent = '';
       showMsg(cvtMsg, e.message || String(e), 'err');
@@ -442,6 +685,9 @@
   });
   document.getElementById('btn-cvt-copy').addEventListener('click', function () {
     copyText(cvtOut.textContent, this);
+  });
+  document.getElementById('btn-cvt-sample').addEventListener('click', function () {
+    cvtIn.value = JSON.stringify(JSON.parse(SAMPLE_CSV), null, 2);
   });
 
   /* compare */
@@ -496,11 +742,16 @@
         }
         cmpList.appendChild(li);
       });
-      if (!count) showMsg(cmpMsg, '两份 JSON 扁平化后无差异', 'ok');
-      else { hideMsg(cmpMsg); showMsg(cmpMsg, '发现 ' + count + ' 处差异', 'info'); }
+      if (!count) showMsg(cmpMsg, tr('diffNone'), 'ok');
+      else { hideMsg(cmpMsg); showMsg(cmpMsg, tr('diffCount').replace('%s', String(count)), 'info'); }
     } catch (e) {
       showMsg(cmpMsg, e.message || String(e), 'err');
     }
+  });
+  document.getElementById('btn-cmp-sample').addEventListener('click', function () {
+    document.getElementById('cmp-a').value = '{\n  "name": "John",\n  "age": 30,\n  "city": "New York"\n}';
+    document.getElementById('cmp-b').value = '{\n  "name": "John",\n  "age": 31,\n  "city": "Boston",\n  "email": "john@example.com"\n}';
+    document.getElementById('btn-cmp').click();
   });
 
   /* JSONPath */
@@ -526,13 +777,13 @@
 
   function evalJsonPath(data, query) {
     query = (query || '').trim();
-    if (!query) throw new Error('请输入 JSONPath');
+    if (!query) throw new Error(tr('errPath'));
     if (query.indexOf('$..') === 0) {
       var key = query.slice(3);
-      if (!key) throw new Error('$.. 后需跟字段名');
+      if (!key) throw new Error(tr('errDeep'));
       return findByKeyDeep(data, key);
     }
-    if (query.indexOf('$.') !== 0 && query !== '$') throw new Error('路径需以 $. 或 $.. 开头');
+    if (query.indexOf('$.') !== 0 && query !== '$') throw new Error(tr('errPathStart'));
     if (query === '$') return data;
     var rest = query.slice(2);
     var tokens = [];
@@ -542,11 +793,11 @@
       if (m[1] !== undefined) tokens.push({ type: 'key', value: m[1] });
       else tokens.push({ type: 'index', value: parseInt(m[2], 10) });
     }
-    if (!tokens.length && rest) throw new Error('无法解析路径：' + query);
+    if (!tokens.length && rest) throw new Error(tr('errParsePath') + query);
     var cur = data;
     for (var i = 0; i < tokens.length; i++) {
       var tok = tokens[i];
-      if (cur === null || cur === undefined) throw new Error('路径在 "' + tok.value + '" 处无值');
+      if (cur === null || cur === undefined) throw new Error(tr('errNoValue') + '"' + tok.value + '"');
       if (tok.type === 'key') cur = cur[tok.value];
       else cur = cur[tok.value];
     }
@@ -567,7 +818,7 @@
       } else {
         pathOut.textContent = JSON.stringify(result, null, 2);
       }
-      showMsg(pathMsg, '查询成功', 'ok');
+      showMsg(pathMsg, tr('pathOk'), 'ok');
     } catch (e) {
       pathOut.textContent = '';
       showMsg(pathMsg, e.message || String(e), 'err');
@@ -575,6 +826,11 @@
   });
   document.getElementById('btn-path-copy').addEventListener('click', function () {
     copyText(pathOut.textContent, this);
+  });
+  document.getElementById('btn-path-sample').addEventListener('click', function () {
+    document.getElementById('path-in').value = SAMPLE_PATH;
+    document.getElementById('path-q').value = '$.store.book[0].author';
+    document.getElementById('btn-path').click();
   });
 })();
   </script>

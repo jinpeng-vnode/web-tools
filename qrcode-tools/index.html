@@ -1,187 +1,327 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>二维码生成</title>
+  <title>QR Tools</title>
   <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
     :root {
-      color-scheme: light dark;
-      --bg: #f4f1ea;
-      --fg: #1c1915;
-      --muted: #5c564c;
-      --card: #fffdf8;
-      --line: #d9d2c5;
-      --accent: #1f4d3a;
-      --radius: 10px;
+      --primary: #6366f1;
+      --primary-hover: #4f46e5;
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --text: #1e293b;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --radius: 12px;
     }
-    @media (prefers-color-scheme: dark) {
-      :root {
-        --bg: #161411;
-        --fg: #f3eee4;
-        --muted: #b4ab9c;
-        --card: #211d18;
-        --line: #3a342c;
-        --accent: #8fbfa6;
-      }
-    }
-    * { box-sizing: border-box; }
     body {
-      margin: 0;
-      font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       background: var(--bg);
-      color: var(--fg);
-      line-height: 1.5;
+      color: var(--text);
+      line-height: 1.6;
+      min-height: 100vh;
     }
-    a { color: var(--accent); }
-    .wrap { max-width: 960px; margin: 0 auto; padding: 24px 20px 64px; }
-    h1 { font-size: 1.6rem; font-weight: 650; margin: 12px 0 4px; }
-    .lead { color: var(--muted); margin: 0 0 20px; }
-    .layout { display: grid; grid-template-columns: 1fr 280px; gap: 20px; align-items: start; }
-    @media (max-width: 800px) { .layout { grid-template-columns: 1fr; } }
-    .card {
-      background: var(--card);
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-      padding: 20px;
-    }
-    label.field-label { display: block; font-size: 0.85rem; font-weight: 600; color: var(--muted); margin-bottom: 6px; }
-    input[type="text"], input[type="url"], input[type="email"], input[type="number"], select, textarea {
-      width: 100%;
-      padding: 10px 12px;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      background: var(--bg);
-      color: var(--fg);
-      font: inherit;
-      margin-bottom: 12px;
-    }
-    textarea { min-height: 88px; resize: vertical; }
-    input:focus-visible, select:focus-visible, textarea:focus-visible, button:focus-visible {
-      outline: 2px solid var(--accent);
+    a { color: var(--primary); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
+      outline: 2px solid var(--primary);
       outline-offset: 2px;
     }
-    .type-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; border: none; padding: 0; }
-    .type-row legend { width: 100%; padding: 0; }
-    .type-row label { display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; border: 1px solid var(--line); border-radius: 8px; cursor: pointer; font-size: 0.9rem; }
-    .type-row input { width: auto; margin: 0; }
+    .header {
+      background: var(--card);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .header-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 12px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text);
+    }
+    .logo:hover { text-decoration: none; }
+    .header nav { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
+    .header nav a { color: var(--text-muted); font-weight: 500; }
+    .header nav a:hover, .header nav a.active { color: var(--primary); text-decoration: none; }
+    .lang { display: flex; gap: 4px; }
+    .lang button {
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--text-muted);
+      padding: 4px 10px;
+      border-radius: 8px;
+      cursor: pointer;
+      font: inherit;
+      font-size: 13px;
+    }
+    .lang button.active, .lang button:hover {
+      color: var(--text);
+      background: var(--bg);
+      border-color: var(--border);
+    }
+    main { max-width: 1200px; margin: 0 auto; padding: 32px 24px; }
+    .hero { text-align: center; margin-bottom: 40px; }
+    .hero h1 { font-size: 2rem; margin-bottom: 8px; }
+    .hero p { color: var(--text-muted); max-width: 600px; margin: 0 auto; }
+    .card {
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 24px;
+      box-shadow: 0 1px 3px rgba(0,0,0,.08);
+    }
+    .layout { display: grid; grid-template-columns: 1fr 340px; gap: 32px; align-items: start; }
+    .left { display: flex; flex-direction: column; gap: 20px; }
+    .type-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      border: none;
+      padding: 0;
+      margin: 0;
+    }
+    .type-row legend { width: 100%; padding: 0; margin-bottom: 8px; font-size: 13px; font-weight: 600; color: var(--text-muted); }
+    .type-row label {
+      background: var(--border);
+      color: var(--text-muted);
+      padding: 8px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .type-row label.active, .type-row label:has(input:checked) {
+      background: var(--primary);
+      color: #fff;
+    }
+    .type-row input { position: absolute; opacity: 0; pointer-events: none; width: 0; height: 0; }
     .panel { display: none; }
     .panel.active { display: block; }
-    .colors { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    .color-field { display: flex; align-items: center; gap: 10px; }
-    .color-field input[type="color"] { width: 48px; height: 40px; padding: 2px; border: 1px solid var(--line); border-radius: 8px; cursor: pointer; background: var(--bg); }
-    .color-field input[type="text"] { margin-bottom: 0; flex: 1; }
-    .toolbar { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px; }
-    .btn {
-      padding: 9px 16px;
+    .fields { display: flex; flex-direction: column; gap: 14px; }
+    label.field-label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; color: var(--text-muted); }
+    input[type="text"], input[type="url"], input[type="email"], input[type="number"], select, textarea {
+      border: 1px solid var(--border);
       border-radius: 8px;
-      border: 1px solid var(--line);
-      background: var(--card);
-      color: var(--fg);
-      font: inherit;
-      cursor: pointer;
+      padding: 10px 14px;
+      font-size: 14px;
+      width: 100%;
+      outline: none;
+      font-family: inherit;
+      background: #fff;
+      color: var(--text);
     }
-    .btn-primary { background: var(--accent); color: #fff; border-color: var(--accent); }
-    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    input:focus, select:focus, textarea:focus { border-color: var(--primary); }
+    textarea { min-height: 88px; resize: vertical; }
+    .colors { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .color-field { display: flex; align-items: center; gap: 10px; }
+    .color-field input[type="color"] { width: 48px; height: 36px; padding: 2px; border: 1px solid var(--border); border-radius: 8px; cursor: pointer; background: #fff; }
+    .color-field input[type="text"] { flex: 1; }
+    .toolbar { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 8px; }
+    button {
+      cursor: pointer;
+      border: none;
+      font-size: 14px;
+      border-radius: 8px;
+      padding: 10px 20px;
+      font-weight: 500;
+      transition: all .2s;
+      font-family: inherit;
+    }
+    .btn-primary, button.primary { background: var(--primary); color: #fff; }
+    .btn-primary:hover, button.primary:hover { background: var(--primary-hover); }
+    .btn, button.secondary { background: var(--border); color: var(--text); }
+    .btn:hover, button.secondary:hover { background: #cbd5e1; }
+    button:disabled { opacity: 0.5; cursor: not-allowed; }
     .preview {
       display: flex;
       flex-direction: column;
+      justify-content: center;
       align-items: center;
+      min-height: 300px;
       gap: 12px;
       text-align: center;
     }
-    canvas { max-width: 100%; border: 1px solid var(--line); border-radius: 8px; background: #fff; }
-    .msg { font-size: 0.85rem; color: var(--muted); min-height: 1.2em; }
-    .msg.err { color: #b91c1c; }
+    canvas { max-width: 100%; border-radius: 8px; background: #fff; }
+    .msg { font-size: 0.85rem; color: var(--text-muted); min-height: 1.2em; }
+    .msg.err { color: #dc2626; }
+    .placeholder { color: var(--text-muted); font-size: 14px; }
+    .right { position: sticky; top: 80px; }
+    .actions { display: flex; gap: 12px; margin-top: 16px; }
+    .actions button { flex: 1; }
+    .footer {
+      max-width: 1200px;
+      margin: 60px auto 0;
+      padding: 24px;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+    @media (max-width: 768px) {
+      .layout { grid-template-columns: 1fr; }
+      .right { position: static; }
+      .hero h1 { font-size: 1.5rem; }
+    }
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <p><a href="../index.html">← 返回工具列表</a></p>
-    <h1>二维码生成</h1>
-    <p class="lead">URL、文本、WiFi、vCard、邮件等类型；自定义颜色与尺寸，导出 PNG。</p>
-
-    <div class="layout">
-      <div class="card">
-        <fieldset class="type-row" aria-label="二维码类型">
-          <legend class="field-label">类型</legend>
-          <label><input type="radio" name="qr-type" value="url" checked /> URL</label>
-          <label><input type="radio" name="qr-type" value="text" /> 文本</label>
-          <label><input type="radio" name="qr-type" value="wifi" /> WiFi</label>
-          <label><input type="radio" name="qr-type" value="vcard" /> vCard</label>
-          <label><input type="radio" name="qr-type" value="email" /> 邮件</label>
-        </fieldset>
-
-        <div id="panel-url" class="panel active" role="group" aria-label="URL">
-          <label class="field-label" for="url-val">网址</label>
-          <input type="url" id="url-val" placeholder="https://example.com" />
-        </div>
-        <div id="panel-text" class="panel" role="group" aria-label="文本">
-          <label class="field-label" for="text-val">文本内容</label>
-          <textarea id="text-val" spellcheck="false"></textarea>
-        </div>
-        <div id="panel-wifi" class="panel" role="group" aria-label="WiFi">
-          <label class="field-label" for="wifi-ssid">SSID</label>
-          <input type="text" id="wifi-ssid" autocomplete="off" />
-          <label class="field-label" for="wifi-pass">密码</label>
-          <input type="text" id="wifi-pass" autocomplete="off" />
-          <label class="field-label" for="wifi-sec">加密</label>
-          <select id="wifi-sec">
-            <option value="WPA">WPA/WPA2</option>
-            <option value="WEP">WEP</option>
-            <option value="nopass">无密码 (nopass)</option>
-          </select>
-        </div>
-        <div id="panel-vcard" class="panel" role="group" aria-label="vCard">
-          <label class="field-label" for="vc-name">姓名</label>
-          <input type="text" id="vc-name" />
-          <label class="field-label" for="vc-phone">电话</label>
-          <input type="text" id="vc-phone" />
-          <label class="field-label" for="vc-email">邮箱</label>
-          <input type="email" id="vc-email" />
-        </div>
-        <div id="panel-email" class="panel" role="group" aria-label="邮件">
-          <label class="field-label" for="em-to">收件人</label>
-          <input type="email" id="em-to" />
-          <label class="field-label" for="em-sub">主题</label>
-          <input type="text" id="em-sub" />
-          <label class="field-label" for="em-body">正文</label>
-          <textarea id="em-body" spellcheck="false"></textarea>
-        </div>
-
-        <div class="colors">
-          <div>
-            <label class="field-label" for="fg-color">前景色</label>
-            <div class="color-field">
-              <input type="color" id="fg-color" value="#000000" aria-label="前景色" />
-              <input type="text" id="fg-hex" value="#000000" aria-label="前景色十六进制" />
-            </div>
-          </div>
-          <div>
-            <label class="field-label" for="bg-color">背景色</label>
-            <div class="color-field">
-              <input type="color" id="bg-color" value="#ffffff" aria-label="背景色" />
-              <input type="text" id="bg-hex" value="#ffffff" aria-label="背景色十六进制" />
-            </div>
-          </div>
-        </div>
-        <label class="field-label" for="qr-size">尺寸（像素）</label>
-        <input type="number" id="qr-size" min="128" max="1024" step="8" value="320" />
-
-        <div class="toolbar">
-          <button type="button" class="btn btn-primary" id="btn-gen">生成二维码</button>
-          <button type="button" class="btn" id="btn-dl" disabled>下载 PNG</button>
-        </div>
-        <p id="qr-msg" class="msg" role="status"></p>
-      </div>
-
-      <div class="card preview">
-        <canvas id="qr-canvas" width="320" height="320" role="img" aria-label="二维码预览"></canvas>
-        <p class="msg">扫码预览请使用手机相机</p>
+  <header class="header">
+    <div class="header-inner">
+      <a class="logo" href="../index.html">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <rect x="2" y="2" width="8" height="8" rx="1"/><rect x="14" y="2" width="8" height="8" rx="1"/>
+          <rect x="2" y="14" width="8" height="8" rx="1"/><path d="M14 14h3v3h-3z"/><path d="M20 14h2v2"/><path d="M14 20h2v2"/><path d="M20 20h2v2"/>
+        </svg>
+        QR Tools
+      </a>
+      <nav>
+        <a href="#" class="active" data-i18n="navGen">Generator</a>
+        <a href="../index.html" data-i18n="back">← All tools</a>
+      </nav>
+      <div class="lang">
+        <button type="button" data-lang="zh">中文</button>
+        <button type="button" data-lang="en">EN</button>
       </div>
     </div>
-  </div>
+  </header>
 
+  <main>
+    <section class="hero">
+      <h1 data-i18n="heroTitle">Free QR Code Generator</h1>
+      <p data-i18n="heroLead">Create QR codes for URLs, text, WiFi, business cards, and email. Customize colors and download PNG.</p>
+    </section>
+
+    <div class="layout">
+      <div class="left">
+        <fieldset class="type-row" aria-label="QR type">
+          <legend class="field-label" data-i18n="type">Type</legend>
+          <label class="active"><input type="radio" name="qr-type" value="url" checked /> URL</label>
+          <label><input type="radio" name="qr-type" value="text" /> <span data-i18n="typeText">Text</span></label>
+          <label><input type="radio" name="qr-type" value="wifi" /> WiFi</label>
+          <label><input type="radio" name="qr-type" value="vcard" /> vCard</label>
+          <label><input type="radio" name="qr-type" value="email" /> <span data-i18n="typeEmail">Email</span></label>
+        </fieldset>
+
+        <div class="card">
+          <div id="panel-url" class="panel active" role="group" aria-label="URL">
+            <label class="field-label" for="url-val" data-i18n="lblUrl">URL</label>
+            <input type="url" id="url-val" placeholder="https://example.com" />
+          </div>
+          <div id="panel-text" class="panel" role="group" aria-label="Text">
+            <label class="field-label" for="text-val" data-i18n="lblText">Text content</label>
+            <textarea id="text-val" spellcheck="false" data-i18n-placeholder="phText" placeholder="Enter your text..."></textarea>
+          </div>
+          <div id="panel-wifi" class="panel" role="group" aria-label="WiFi">
+            <div class="fields">
+              <div>
+                <label class="field-label" for="wifi-ssid" data-i18n="lblSsid">Network name (SSID)</label>
+                <input type="text" id="wifi-ssid" autocomplete="off" />
+              </div>
+              <div>
+                <label class="field-label" for="wifi-pass" data-i18n="lblPass">Password</label>
+                <input type="text" id="wifi-pass" autocomplete="off" />
+              </div>
+              <div>
+                <label class="field-label" for="wifi-sec" data-i18n="lblSec">Encryption</label>
+                <select id="wifi-sec">
+                  <option value="WPA">WPA/WPA2</option>
+                  <option value="WEP">WEP</option>
+                  <option value="nopass" data-i18n="secNone">No password (nopass)</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div id="panel-vcard" class="panel" role="group" aria-label="vCard">
+            <div class="fields">
+              <div>
+                <label class="field-label" for="vc-name" data-i18n="lblName">Full name</label>
+                <input type="text" id="vc-name" />
+              </div>
+              <div>
+                <label class="field-label" for="vc-phone" data-i18n="lblPhone">Phone</label>
+                <input type="text" id="vc-phone" />
+              </div>
+              <div>
+                <label class="field-label" for="vc-email" data-i18n="lblEmail">Email</label>
+                <input type="email" id="vc-email" />
+              </div>
+            </div>
+          </div>
+          <div id="panel-email" class="panel" role="group" aria-label="Email">
+            <div class="fields">
+              <div>
+                <label class="field-label" for="em-to" data-i18n="lblTo">To</label>
+                <input type="email" id="em-to" />
+              </div>
+              <div>
+                <label class="field-label" for="em-sub" data-i18n="lblSub">Subject</label>
+                <input type="text" id="em-sub" />
+              </div>
+              <div>
+                <label class="field-label" for="em-body" data-i18n="lblBody">Body</label>
+                <textarea id="em-body" spellcheck="false"></textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 class="field-label" style="margin-bottom:16px;text-transform:none;font-size:15px;color:var(--text)" data-i18n="customize">Customize</h3>
+          <div class="colors">
+            <div>
+              <label class="field-label" for="fg-color" data-i18n="fg">Foreground</label>
+              <div class="color-field">
+                <input type="color" id="fg-color" value="#000000" aria-label="Foreground" />
+                <input type="text" id="fg-hex" value="#000000" aria-label="Foreground hex" />
+              </div>
+            </div>
+            <div>
+              <label class="field-label" for="bg-color" data-i18n="bg">Background</label>
+              <div class="color-field">
+                <input type="color" id="bg-color" value="#ffffff" aria-label="Background" />
+                <input type="text" id="bg-hex" value="#ffffff" aria-label="Background hex" />
+              </div>
+            </div>
+          </div>
+          <label class="field-label" for="qr-size" style="margin-top:16px" data-i18n="size">Size (px)</label>
+          <input type="number" id="qr-size" min="128" max="1024" step="8" value="320" />
+          <div class="toolbar">
+            <button type="button" class="btn-primary" id="btn-gen" data-i18n="gen">Generate QR code</button>
+            <button type="button" class="btn" id="btn-dl" disabled data-i18n="dlPng">Download PNG</button>
+          </div>
+          <p id="qr-msg" class="msg" role="status"></p>
+        </div>
+      </div>
+
+      <div class="right">
+        <div class="card preview">
+          <canvas id="qr-canvas" width="320" height="320" role="img" aria-label="QR preview"></canvas>
+          <p class="placeholder" data-i18n="scanHint">Scan with your phone camera</p>
+        </div>
+      </div>
+    </div>
+  </main>
+  <footer class="footer">
+    <p data-i18n="footer">Free online QR code generator</p>
+  </footer>
+
+  <script src="../assets/i18n.js"></script>
   <script>
 //---------------------------------------------------------------------
 //
@@ -2473,6 +2613,95 @@ var qrcode = function() {
 
   </script>
   <script>
+var I18N = {
+  en: {
+    "document.title": "QR Tools",
+    navGen: "Generator",
+    back: "← All tools",
+    heroTitle: "Free QR Code Generator",
+    heroLead: "Create QR codes for URLs, text, WiFi, business cards, and email. Customize colors and download PNG.",
+    type: "Type",
+    typeText: "Text",
+    typeEmail: "Email",
+    lblUrl: "URL",
+    lblText: "Text content",
+    phText: "Enter your text...",
+    lblSsid: "Network name (SSID)",
+    lblPass: "Password",
+    lblSec: "Encryption",
+    secNone: "No password (nopass)",
+    lblName: "Full name",
+    lblPhone: "Phone",
+    lblEmail: "Email",
+    lblTo: "To",
+    lblSub: "Subject",
+    lblBody: "Body",
+    customize: "Customize",
+    fg: "Foreground",
+    bg: "Background",
+    size: "Size (px)",
+    gen: "Generate QR code",
+    dlPng: "Download PNG",
+    scanHint: "Scan with your phone camera",
+    footer: "Free online QR code generator",
+    errUrl: "Enter a URL",
+    errText: "Enter text",
+    errSsid: "Enter a WiFi name (SSID)",
+    errWifiPass: "Enter the WiFi password",
+    errVcard: "Fill in at least one vCard field",
+    errTo: "Enter a recipient",
+    errType: "Unknown type",
+    genOk: "Generated, %s characters"
+  },
+  zh: {
+    "document.title": "二维码工具",
+    navGen: "生成器",
+    back: "← 返回工具列表",
+    heroTitle: "免费二维码生成器",
+    heroLead: "为网址、文本、WiFi、名片和邮件生成二维码。可自定义颜色并下载 PNG。",
+    type: "类型",
+    typeText: "文本",
+    typeEmail: "邮件",
+    lblUrl: "网址",
+    lblText: "文本内容",
+    phText: "输入文本…",
+    lblSsid: "网络名称 (SSID)",
+    lblPass: "密码",
+    lblSec: "加密",
+    secNone: "无密码 (nopass)",
+    lblName: "姓名",
+    lblPhone: "电话",
+    lblEmail: "邮箱",
+    lblTo: "收件人",
+    lblSub: "主题",
+    lblBody: "正文",
+    customize: "自定义",
+    fg: "前景色",
+    bg: "背景色",
+    size: "尺寸（像素）",
+    gen: "生成二维码",
+    dlPng: "下载 PNG",
+    scanHint: "扫码预览请使用手机相机",
+    footer: "Free online QR code generator",
+    errUrl: "请输入网址",
+    errText: "请输入文本",
+    errSsid: "请输入 WiFi 名称 (SSID)",
+    errWifiPass: "请输入 WiFi 密码",
+    errVcard: "请至少填写 vCard 一项",
+    errTo: "请输入收件人",
+    errType: "未知类型",
+    genOk: "已生成，共 %s 字符"
+  }
+};
+function tr(key) {
+  var pack = I18N[WTLang.get()] || I18N.en;
+  return pack[key] || key;
+}
+WTLang.apply(I18N);
+document.querySelectorAll("[data-lang]").forEach(function (btn) {
+  btn.addEventListener("click", function () { WTLang.set(btn.getAttribute("data-lang"), I18N); });
+});
+
 (function () {
   var panels = {
     url: document.getElementById('panel-url'),
@@ -2494,20 +2723,20 @@ var qrcode = function() {
     var type = document.querySelector('input[name="qr-type"]:checked').value;
     if (type === 'url') {
       var u = document.getElementById('url-val').value.trim();
-      if (!u) throw new Error('请输入网址');
+      if (!u) throw new Error(tr('errUrl'));
       return u;
     }
     if (type === 'text') {
       var t = document.getElementById('text-val').value;
-      if (!t.trim()) throw new Error('请输入文本');
+      if (!t.trim()) throw new Error(tr('errText'));
       return t;
     }
     if (type === 'wifi') {
       var ssid = document.getElementById('wifi-ssid').value.trim();
-      if (!ssid) throw new Error('请输入 WiFi 名称 (SSID)');
+      if (!ssid) throw new Error(tr('errSsid'));
       var sec = document.getElementById('wifi-sec').value;
       var pass = document.getElementById('wifi-pass').value;
-      if (sec !== 'nopass' && !pass) throw new Error('请输入 WiFi 密码');
+      if (sec !== 'nopass' && !pass) throw new Error(tr('errWifiPass'));
       var t = sec === 'nopass' ? 'nopass' : sec;
       return 'WIFI:T:' + t + ';S:' + escWifi(ssid) + ';' + (t === 'nopass' ? '' : 'P:' + escWifi(pass) + ';') + ';';
     }
@@ -2515,7 +2744,7 @@ var qrcode = function() {
       var name = document.getElementById('vc-name').value.trim();
       var phone = document.getElementById('vc-phone').value.trim();
       var email = document.getElementById('vc-email').value.trim();
-      if (!name && !phone && !email) throw new Error('请至少填写 vCard 一项');
+      if (!name && !phone && !email) throw new Error(tr('errVcard'));
       var lines = ['BEGIN:VCARD', 'VERSION:3.0'];
       if (name) lines.push('FN:' + name);
       if (phone) lines.push('TEL:' + phone);
@@ -2525,12 +2754,12 @@ var qrcode = function() {
     }
     if (type === 'email') {
       var to = document.getElementById('em-to').value.trim();
-      if (!to) throw new Error('请输入收件人');
+      if (!to) throw new Error(tr('errTo'));
       var sub = document.getElementById('em-sub').value;
       var body = document.getElementById('em-body').value;
       return 'MATMSG:TO:' + to + ';SUB:' + sub + ';BODY:' + body + ';;';
     }
-    throw new Error('未知类型');
+    throw new Error(tr('errType'));
   }
 
   function syncColor(fromPicker, hexInput) {
@@ -2554,6 +2783,10 @@ var qrcode = function() {
     radio.addEventListener('change', function () {
       Object.keys(panels).forEach(function (k) {
         panels[k].classList.toggle('active', k === radio.value);
+      });
+      document.querySelectorAll('.type-row label').forEach(function (lab) {
+        var inp = lab.querySelector('input');
+        lab.classList.toggle('active', inp && inp.checked);
       });
     });
   });
@@ -2590,7 +2823,7 @@ var qrcode = function() {
       size = Math.min(1024, Math.max(128, size));
       drawQr(payload, fgHex.value, bgHex.value, size);
       btnDl.disabled = false;
-      msg.textContent = '已生成，共 ' + payload.length + ' 字符';
+      msg.textContent = tr('genOk').replace('%s', String(payload.length));
     } catch (e) {
       btnDl.disabled = true;
       msg.textContent = e.message || String(e);

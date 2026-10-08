@@ -1,73 +1,242 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>简易白板</title>
+  <title>Excalidraw Hub - Free Online Whiteboard Tool</title>
   <style>
     :root {
-      color-scheme: light dark;
-      --bg: #f4f1ea;
-      --fg: #1c1915;
-      --muted: #5c564c;
-      --card: #fffdf8;
-      --line: #d9d2c5;
-      --accent: #1f4d3a;
-      --board: #ffffff;
-      --radius: 10px;
-    }
-    @media (prefers-color-scheme: dark) {
-      :root {
-        --bg: #161411;
-        --fg: #f3eee4;
-        --muted: #b4ab9c;
-        --card: #211d18;
-        --line: #3a342c;
-        --accent: #8fbfa6;
-        --board: #faf8f5;
-      }
+      --brand: #4f46e5;
+      --brand-orig: #6965db;
+      --brand-dark: #3730a3;
+      --brand-light: #a5a3f5;
+      --text: #111827;
+      --muted: #4b5563;
+      --gray-50: #f9fafb;
+      --gray-200: #e5e7eb;
+      --gray-300: #d1d5db;
+      --gray-500: #6b7280;
+      --gray-600: #4b5563;
+      --gray-900: #111827;
     }
     * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    html, body { margin: 0; }
     body {
-      margin: 0;
-      font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
-      background: var(--bg);
-      color: var(--fg);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      background: #fff;
+      color: var(--text);
       line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
     }
-    a { color: var(--accent); }
-    a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-    .wrap { max-width: 1100px; margin: 0 auto; padding: 24px 20px 64px; }
-    h1 { font-size: 1.6rem; font-weight: 650; margin: 12px 0 4px; }
-    .lead { color: var(--muted); margin: 0 0 16px; }
+    a { color: var(--brand); text-decoration: none; }
+    a:hover { color: var(--brand-dark); }
+    a:focus-visible, button:focus-visible, input:focus-visible {
+      outline: 2px solid var(--brand);
+      outline-offset: 2px;
+    }
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: #fff;
+      border-bottom: 1px solid var(--gray-200);
+    }
+    .site-header nav {
+      max-width: 80rem;
+      margin: 0 auto;
+      padding: 0 1rem;
+      height: 3.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-weight: 700;
+      font-size: 1.25rem;
+      color: var(--brand);
+    }
+    .brand:hover { color: var(--brand-dark); }
+    .brand-mark {
+      width: 2rem;
+      height: 2rem;
+      border-radius: 0.4rem;
+      background: var(--brand-orig);
+      color: #fff;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    .nav-link {
+      color: var(--gray-600);
+      font-size: 0.95rem;
+    }
+    .nav-link:hover { color: var(--brand); }
+    .cta {
+      display: inline-block;
+      background: var(--brand);
+      color: #fff;
+      padding: 0.5rem 1rem;
+      border-radius: 0.5rem;
+      font-weight: 500;
+    }
+    .cta:hover { background: var(--brand-dark); color: #fff; }
+    .cta-lg {
+      padding: 0.75rem 2rem;
+      font-size: 1.125rem;
+      border-radius: 0.5rem;
+    }
+    .lang {
+      display: flex;
+      gap: 0.25rem;
+      font-size: 0.875rem;
+    }
+    .lang button {
+      padding: 0.25rem 0.5rem;
+      border: none;
+      border-radius: 0.25rem;
+      background: transparent;
+      color: var(--gray-600);
+      cursor: pointer;
+      font: inherit;
+    }
+    .lang button:hover { background: var(--gray-50); }
+    .lang button.active {
+      background: var(--brand);
+      color: #fff;
+    }
+    .hero {
+      background: linear-gradient(to bottom, rgba(79, 70, 229, 0.05), #fff);
+      padding: 5rem 1rem;
+      text-align: center;
+    }
+    .hero-inner { max-width: 48rem; margin: 0 auto; }
+    .hero h1 {
+      margin: 0 0 1rem;
+      font-size: clamp(1.875rem, 4vw, 3rem);
+      font-weight: 700;
+      color: var(--gray-900);
+    }
+    .hero p {
+      margin: 0 0 2rem;
+      font-size: 1.125rem;
+      color: var(--gray-600);
+    }
+    .templates {
+      max-width: 80rem;
+      margin: 0 auto;
+      padding: 4rem 1rem;
+    }
+    .templates-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    .templates-head h2 {
+      margin: 0;
+      font-size: 1.5rem;
+      color: var(--gray-900);
+    }
+    .tpl-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+    .tpl-card {
+      display: block;
+      border: 1px solid var(--gray-200);
+      border-radius: 0.75rem;
+      overflow: hidden;
+      background: #fff;
+      color: inherit;
+      transition: box-shadow 0.2s;
+    }
+    .tpl-card:hover { box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); color: inherit; }
+    .tpl-preview {
+      aspect-ratio: 16 / 9;
+      background: var(--gray-50);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--gray-300);
+    }
+    .tpl-preview svg { width: 3rem; height: 3rem; }
+    .tpl-body { padding: 1rem; }
+    .tpl-cat {
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--brand);
+    }
+    .tpl-body h3 {
+      margin: 0.25rem 0 0;
+      font-size: 1rem;
+      color: var(--gray-900);
+    }
+    .tpl-card:hover h3 { color: var(--brand); }
+    .tpl-body p {
+      margin: 0.25rem 0 0;
+      font-size: 0.875rem;
+      color: var(--gray-500);
+    }
+    .editor-section {
+      max-width: 80rem;
+      margin: 0 auto;
+      padding: 0 1rem 4rem;
+      width: 100%;
+      scroll-margin-top: 4.5rem;
+    }
+    #templates { scroll-margin-top: 4.5rem; }
+    .editor-section h2 {
+      font-size: 1.5rem;
+      margin: 0 0 1rem;
+    }
     .card {
-      background: var(--card);
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-      padding: 16px;
+      background: #fff;
+      border: 1px solid var(--gray-200);
+      border-radius: 0.75rem;
+      padding: 1rem;
     }
     .toolbar {
       display: flex;
       flex-wrap: wrap;
-      gap: 10px;
+      gap: 0.625rem;
       align-items: center;
-      margin-bottom: 12px;
+      margin-bottom: 0.75rem;
     }
     .tool-group {
       display: flex;
       flex-wrap: wrap;
-      gap: 6px;
+      gap: 0.375rem;
       align-items: center;
-      padding: 6px 10px;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      background: var(--bg);
+      padding: 0.375rem 0.625rem;
+      border: 1px solid var(--gray-200);
+      border-radius: 0.5rem;
+      background: var(--gray-50);
     }
     .tool-group legend, .tool-group .group-label {
       font-size: 0.75rem;
       font-weight: 600;
-      color: var(--muted);
-      margin-right: 4px;
+      color: var(--gray-500);
+      margin-right: 0.25rem;
     }
     .btn {
       display: inline-flex;
@@ -75,44 +244,40 @@
       justify-content: center;
       min-height: 40px;
       min-width: 40px;
-      padding: 8px 12px;
-      border-radius: 8px;
-      border: 1px solid var(--line);
-      background: var(--card);
-      color: var(--fg);
+      padding: 0.5rem 0.75rem;
+      border-radius: 0.5rem;
+      border: 1px solid var(--gray-200);
+      background: #fff;
+      color: var(--text);
       font: inherit;
       cursor: pointer;
     }
-    .btn:hover { border-color: var(--accent); }
+    .btn:hover { border-color: var(--brand); }
     .btn[aria-pressed="true"] {
-      background: var(--accent);
+      background: var(--brand);
       color: #fff;
-      border-color: var(--accent);
+      border-color: var(--brand);
     }
-    .btn:focus-visible, input:focus-visible {
-      outline: 2px solid var(--accent);
-      outline-offset: 2px;
-    }
-    .btn-primary { background: var(--accent); color: #fff; border-color: var(--accent); }
-    .btn-primary:hover { filter: brightness(1.08); }
+    .btn-primary { background: var(--brand); color: #fff; border-color: var(--brand); }
+    .btn-primary:hover { background: var(--brand-dark); }
     .btn:disabled { opacity: 0.45; cursor: not-allowed; }
-    label.field-label { font-size: 0.85rem; font-weight: 600; color: var(--muted); }
+    label.field-label { font-size: 0.85rem; font-weight: 600; color: var(--gray-500); }
     input[type="color"] {
       width: 44px;
       height: 40px;
-      border: 1px solid var(--line);
-      border-radius: 8px;
+      border: 1px solid var(--gray-200);
+      border-radius: 0.5rem;
       padding: 2px;
       cursor: pointer;
-      background: var(--card);
+      background: #fff;
     }
-    input[type="range"] { width: 120px; accent-color: var(--accent); }
+    input[type="range"] { width: 120px; accent-color: var(--brand); }
     .board-wrap {
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
+      border: 1px solid var(--gray-200);
+      border-radius: 0.75rem;
       overflow: hidden;
       touch-action: none;
-      background: var(--board);
+      background: #fff;
     }
     canvas {
       display: block;
@@ -121,47 +286,308 @@
       cursor: crosshair;
     }
     canvas.eraser { cursor: cell; }
-    .hint { font-size: 0.85rem; color: var(--muted); margin-top: 10px; }
+    .hint { font-size: 0.85rem; color: var(--gray-500); margin-top: 0.625rem; }
+    .site-footer {
+      background: var(--gray-50);
+      border-top: 1px solid var(--gray-200);
+      margin-top: auto;
+    }
+    .site-footer .inner {
+      max-width: 80rem;
+      margin: 0 auto;
+      padding: 2rem 1rem;
+    }
+    .foot-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    .site-footer h3 {
+      font-size: 0.95rem;
+      margin: 0 0 0.5rem;
+      color: var(--gray-900);
+    }
+    .site-footer ul { list-style: none; margin: 0; padding: 0; font-size: 0.875rem; color: var(--gray-600); }
+    .site-footer li { margin: 0.25rem 0; }
+    .site-footer li a { color: var(--gray-600); }
+    .site-footer li a:hover { color: var(--brand); }
+    .copy {
+      text-align: center;
+      font-size: 0.875rem;
+      color: var(--gray-500);
+      margin: 0;
+    }
+    @media (min-width: 768px) {
+      .tpl-grid { grid-template-columns: repeat(3, 1fr); }
+      .foot-grid { grid-template-columns: repeat(4, 1fr); }
+    }
+    @media (max-width: 640px) {
+      .header-actions .nav-link { display: none; }
+      .hero { padding: 3rem 1rem; }
+    }
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <header>
-      <a href="../index.html">← 返回工具首页</a>
-      <h1>简易白板</h1>
-      <p class="lead">离线静态画板：画笔、橡皮、撤销与导出 PNG。非 Excalidraw 官方组件，可在本地直接使用。</p>
-    </header>
+  <header class="site-header">
+    <nav>
+      <a class="brand" href="../index.html">
+        <span class="brand-mark" aria-hidden="true">E</span>
+        <span>Excalidraw Hub</span>
+      </a>
+      <div class="header-actions">
+        <a class="nav-link" href="../index.html" data-i18n="back">Home</a>
+        <a class="nav-link" href="#templates" data-i18n="nav.templates">Templates</a>
+        <div class="lang">
+          <button type="button" data-lang="zh">中文</button>
+          <button type="button" data-lang="en">EN</button>
+        </div>
+        <a class="cta" href="#editor" data-i18n="nav.editor">Open Editor</a>
+      </div>
+    </nav>
+  </header>
 
+  <section class="hero">
+    <div class="hero-inner">
+      <h1 data-i18n="home.hero">Free Online Whiteboard &amp; Diagramming Tool</h1>
+      <p data-i18n="home.heroSub">Create beautiful diagrams, flowcharts, and sketches instantly. No signup required.</p>
+      <a class="cta cta-lg" href="#editor" data-i18n="home.cta">Start Drawing</a>
+    </div>
+  </section>
+
+  <section class="templates" id="templates">
+    <div class="templates-head">
+      <h2 data-i18n="home.templates">Popular Templates</h2>
+      <a href="#editor" data-i18n="home.viewAll">View All Templates</a>
+    </div>
+    <div class="tpl-grid">
+      <a class="tpl-card" href="#editor">
+        <div class="tpl-preview" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 3v12M18 9a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM6 21a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM18 9a9 9 0 0 1-9 9"/></svg>
+        </div>
+        <div class="tpl-body">
+          <span class="tpl-cat" data-i18n="tpl.flowchart.cat">flowchart</span>
+          <h3 data-i18n="tpl.flowchart.title">Basic Flowchart</h3>
+          <p data-i18n="tpl.flowchart.desc">A simple flowchart template for process documentation</p>
+        </div>
+      </a>
+      <a class="tpl-card" href="#editor">
+        <div class="tpl-preview" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 5a3 3 0 1 0-5.997.125 4 4 0 0 0-2.526 5.77 4 4 0 0 0 .556 6.588A4 4 0 1 0 12 18ZM12 5a3 3 0 1 1 5.997.125 4 4 0 0 1 2.526 5.77 4 4 0 0 1-.556 6.588A4 4 0 1 1 12 18Z"/></svg>
+        </div>
+        <div class="tpl-body">
+          <span class="tpl-cat" data-i18n="tpl.mindmap.cat">mindmap</span>
+          <h3 data-i18n="tpl.mindmap.title">Project Mind Map</h3>
+          <p data-i18n="tpl.mindmap.desc">Organize your project ideas with this mind map template</p>
+        </div>
+      </a>
+      <a class="tpl-card" href="#editor">
+        <div class="tpl-preview" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 7a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V7ZM12 17v.01"/></svg>
+        </div>
+        <div class="tpl-body">
+          <span class="tpl-cat" data-i18n="tpl.wireframe.cat">wireframe</span>
+          <h3 data-i18n="tpl.wireframe.title">Wireframe Kit</h3>
+          <p data-i18n="tpl.wireframe.desc">UI wireframe components for web and mobile design</p>
+        </div>
+      </a>
+    </div>
+  </section>
+
+  <section class="editor-section" id="editor">
+    <h2 data-i18n="editor.title">Whiteboard Editor</h2>
     <div class="card">
-      <div class="toolbar" role="toolbar" aria-label="画板工具">
+      <div class="toolbar" role="toolbar" aria-label="Whiteboard tools">
         <fieldset class="tool-group" style="border:none;margin:0;padding:6px 10px">
-          <span class="group-label" id="mode-label">工具</span>
-          <button type="button" class="btn" id="tool-pen" aria-pressed="true" aria-labelledby="mode-label" title="画笔 (P)">画笔</button>
-          <button type="button" class="btn" id="tool-eraser" aria-pressed="false" title="橡皮 (E)">橡皮</button>
+          <span class="group-label" id="mode-label" data-i18n="editor.tools">Tools</span>
+          <button type="button" class="btn" id="tool-pen" aria-pressed="true" aria-labelledby="mode-label" title="Pen (P)" data-i18n="editor.pen" data-i18n-title="editor.penTitle">Pen</button>
+          <button type="button" class="btn" id="tool-eraser" aria-pressed="false" title="Eraser (E)" data-i18n="editor.eraser" data-i18n-title="editor.eraserTitle">Eraser</button>
         </fieldset>
 
         <div class="tool-group">
-          <label class="field-label" for="stroke-color">颜色</label>
-          <input type="color" id="stroke-color" value="#1c1915" aria-label="画笔颜色" />
+          <label class="field-label" for="stroke-color" data-i18n="editor.color">Color</label>
+          <input type="color" id="stroke-color" value="#1c1915" aria-label="Stroke color" />
         </div>
 
         <div class="tool-group">
-          <label class="field-label" for="stroke-width">线宽 <span id="width-display">4</span>px</label>
+          <label class="field-label" for="stroke-width"><span data-i18n="editor.width">Width</span> <span id="width-display">4</span>px</label>
           <input type="range" id="stroke-width" min="1" max="48" value="4" aria-valuemin="1" aria-valuemax="48" aria-valuenow="4" />
         </div>
 
-        <button type="button" class="btn" id="btn-undo" disabled title="撤销 (Ctrl+Z)">撤销</button>
-        <button type="button" class="btn" id="btn-clear" title="清空画布">清空</button>
-        <button type="button" class="btn btn-primary" id="btn-download" title="下载 PNG">下载 PNG</button>
+        <button type="button" class="btn" id="btn-undo" disabled title="Undo (Ctrl+Z)" data-i18n="editor.undo" data-i18n-title="editor.undoTitle">Undo</button>
+        <button type="button" class="btn" id="btn-clear" title="Clear canvas" data-i18n="editor.clear" data-i18n-title="editor.clearTitle">Clear</button>
+        <button type="button" class="btn btn-primary" id="btn-download" title="Download PNG" data-i18n="editor.download" data-i18n-title="editor.downloadTitle">Download PNG</button>
       </div>
 
       <div class="board-wrap">
-        <canvas id="board" width="1024" height="640" aria-label="画板区域，可使用鼠标或触摸绘制"></canvas>
+        <canvas id="board" width="1024" height="640" aria-label="Drawing canvas"></canvas>
       </div>
-      <p class="hint">快捷键：P 画笔，E 橡皮，Ctrl+Z 撤销。支持鼠标与触摸屏。</p>
+      <p class="hint" data-i18n="editor.hint">Shortcuts: P pen, E eraser, Ctrl+Z undo. Mouse and touch supported.</p>
     </div>
-  </div>
+  </section>
 
+  <footer class="site-footer">
+    <div class="inner">
+      <div class="foot-grid">
+        <div>
+          <h3 data-i18n="nav.templates">Templates</h3>
+          <ul>
+            <li><a href="#editor" data-i18n="foot.flowcharts">Flowcharts</a></li>
+            <li><a href="#editor" data-i18n="foot.mindmaps">Mind Maps</a></li>
+            <li><a href="#editor" data-i18n="foot.wireframes">Wireframes</a></li>
+          </ul>
+        </div>
+        <div>
+          <h3 data-i18n="nav.useCases">Use Cases</h3>
+          <ul>
+            <li><a href="#editor" data-i18n="foot.flowchartMaker">Flowchart Maker</a></li>
+            <li><a href="#editor" data-i18n="foot.mindMapTool">Mind Map Tool</a></li>
+            <li><a href="#editor" data-i18n="foot.wireframeTool">Wireframe Tool</a></li>
+          </ul>
+        </div>
+        <div>
+          <h3 data-i18n="footer.about">About</h3>
+          <ul>
+            <li><a href="../index.html" data-i18n="back">Home</a></li>
+            <li><span data-i18n="footer.privacy">Privacy</span></li>
+            <li><span data-i18n="footer.terms">Terms</span></li>
+          </ul>
+        </div>
+      </div>
+      <p class="copy" data-i18n="footer.copyright">© 2026 Excalidraw Hub. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script src="../assets/i18n.js"></script>
+  <script>
+    var I18N = {
+      en: {
+        "document.title": "Excalidraw Hub - Free Online Whiteboard Tool",
+        back: "Home",
+        "site.title": "Excalidraw Hub - Free Online Whiteboard Tool",
+        "site.description": "Free online whiteboard and diagramming tool. Create flowcharts, mind maps, wireframes and more with Excalidraw.",
+        "nav.home": "Home",
+        "nav.editor": "Open Editor",
+        "nav.templates": "Templates",
+        "nav.useCases": "Use Cases",
+        "home.hero": "Free Online Whiteboard & Diagramming Tool",
+        "home.heroSub": "Create beautiful diagrams, flowcharts, and sketches instantly. No signup required.",
+        "home.cta": "Start Drawing",
+        "home.templates": "Popular Templates",
+        "home.viewAll": "View All Templates",
+        "editor.title": "Whiteboard Editor",
+        "editor.loading": "Loading editor...",
+        "editor.error": "Editor failed to load. Please refresh.",
+        "editor.templateLoaded": "Template loaded successfully",
+        "editor.tools": "Tools",
+        "editor.pen": "Pen",
+        "editor.eraser": "Eraser",
+        "editor.color": "Color",
+        "editor.width": "Width",
+        "editor.undo": "Undo",
+        "editor.clear": "Clear",
+        "editor.download": "Download PNG",
+        "editor.penTitle": "Pen (P)",
+        "editor.eraserTitle": "Eraser (E)",
+        "editor.undoTitle": "Undo (Ctrl+Z)",
+        "editor.clearTitle": "Clear canvas",
+        "editor.downloadTitle": "Download PNG",
+        "editor.hint": "Shortcuts: P pen, E eraser, Ctrl+Z undo. Mouse and touch supported.",
+        "editor.clearConfirm": "Clear the entire board?",
+        "templates.title": "Templates",
+        "templates.description": "Browse our collection of free whiteboard templates",
+        "templates.useTemplate": "Use This Template",
+        "templates.related": "Related Templates",
+        "tpl.flowchart.cat": "flowchart",
+        "tpl.flowchart.title": "Basic Flowchart",
+        "tpl.flowchart.desc": "A simple flowchart template for process documentation",
+        "tpl.mindmap.cat": "mindmap",
+        "tpl.mindmap.title": "Project Mind Map",
+        "tpl.mindmap.desc": "Organize your project ideas with this mind map template",
+        "tpl.wireframe.cat": "wireframe",
+        "tpl.wireframe.title": "Wireframe Kit",
+        "tpl.wireframe.desc": "UI wireframe components for web and mobile design",
+        "foot.flowcharts": "Flowcharts",
+        "foot.mindmaps": "Mind Maps",
+        "foot.wireframes": "Wireframes",
+        "foot.flowchartMaker": "Flowchart Maker",
+        "foot.mindMapTool": "Mind Map Tool",
+        "foot.wireframeTool": "Wireframe Tool",
+        "footer.copyright": "© 2026 Excalidraw Hub. All rights reserved.",
+        "footer.about": "About",
+        "footer.privacy": "Privacy",
+        "footer.terms": "Terms"
+      },
+      zh: {
+        "document.title": "Excalidraw Hub - 免费在线白板工具",
+        back: "返回首页",
+        "site.title": "Excalidraw Hub - 免费在线白板工具",
+        "site.description": "免费在线白板和图表绘制工具。使用 Excalidraw 创建流程图、思维导图、线框图等。",
+        "nav.home": "首页",
+        "nav.editor": "打开编辑器",
+        "nav.templates": "模板库",
+        "nav.useCases": "使用场景",
+        "home.hero": "免费在线白板 & 图表绘制工具",
+        "home.heroSub": "即时创建精美的图表、流程图和草图。无需注册。",
+        "home.cta": "开始绘图",
+        "home.templates": "热门模板",
+        "home.viewAll": "查看全部模板",
+        "editor.title": "白板编辑器",
+        "editor.loading": "编辑器加载中...",
+        "editor.error": "编辑器加载失败，请刷新页面。",
+        "editor.templateLoaded": "模板加载成功",
+        "editor.tools": "工具",
+        "editor.pen": "画笔",
+        "editor.eraser": "橡皮",
+        "editor.color": "颜色",
+        "editor.width": "线宽",
+        "editor.undo": "撤销",
+        "editor.clear": "清空",
+        "editor.download": "下载 PNG",
+        "editor.penTitle": "画笔 (P)",
+        "editor.eraserTitle": "橡皮 (E)",
+        "editor.undoTitle": "撤销 (Ctrl+Z)",
+        "editor.clearTitle": "清空画布",
+        "editor.downloadTitle": "下载 PNG",
+        "editor.hint": "快捷键：P 画笔，E 橡皮，Ctrl+Z 撤销。支持鼠标与触摸屏。",
+        "editor.clearConfirm": "确定清空整张画板？",
+        "templates.title": "模板库",
+        "templates.description": "浏览我们的免费白板模板合集",
+        "templates.useTemplate": "使用此模板",
+        "templates.related": "相关模板",
+        "tpl.flowchart.cat": "流程图",
+        "tpl.flowchart.title": "基础流程图",
+        "tpl.flowchart.desc": "用于流程说明的简易流程图模板",
+        "tpl.mindmap.cat": "思维导图",
+        "tpl.mindmap.title": "项目思维导图",
+        "tpl.mindmap.desc": "用思维导图整理项目想法",
+        "tpl.wireframe.cat": "线框图",
+        "tpl.wireframe.title": "线框图套件",
+        "tpl.wireframe.desc": "网页与移动端 UI 线框组件",
+        "foot.flowcharts": "流程图",
+        "foot.mindmaps": "思维导图",
+        "foot.wireframes": "线框图",
+        "foot.flowchartMaker": "流程图工具",
+        "foot.mindMapTool": "思维导图工具",
+        "foot.wireframeTool": "线框图工具",
+        "footer.copyright": "© 2026 Excalidraw Hub. 保留所有权利。",
+        "footer.about": "关于",
+        "footer.privacy": "隐私政策",
+        "footer.terms": "使用条款"
+      }
+    };
+
+    function t(key) {
+      var lang = (window.WTLang && WTLang.get()) || "en";
+      var pack = I18N[lang] || I18N.en;
+      return pack[key] != null ? pack[key] : key;
+    }
+
+    WTLang.apply(I18N);
+    document.querySelectorAll("[data-lang]").forEach(function (btn) {
+      btn.addEventListener("click", function () { WTLang.set(btn.getAttribute("data-lang"), I18N); });
+    });
+  </script>
   <script>
     (function () {
       var canvas = document.getElementById('board');
@@ -306,7 +732,7 @@
 
       clearBtn.addEventListener('click', function () {
         if (!strokes.length && !current) return;
-        if (!window.confirm('确定清空整张画板？')) return;
+        if (!window.confirm(t('editor.clearConfirm'))) return;
         pushUndo();
         strokes = [];
         current = null;

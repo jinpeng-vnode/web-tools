@@ -1,173 +1,317 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>密码生成器</title>
+  <title>Password Generator</title>
   <style>
     :root {
-      color-scheme: light dark;
-      --bg: #f4f1ea;
-      --fg: #1c1915;
-      --muted: #5c564c;
-      --card: #fffdf8;
-      --line: #d9d2c5;
-      --accent: #1f4d3a;
-      --danger: #b91c1c;
-      --warning: #b45309;
-      --success: #15803d;
-      --radius: 10px;
+      color-scheme: dark;
+      --primary: #6366f1;
+      --primary-hover: #4f46e5;
+      --bg: #0f172a;
+      --bg-secondary: #1e293b;
+      --bg-card: #1e293b;
+      --text: #f1f5f9;
+      --text-secondary: #94a3b8;
+      --border: #334155;
+      --success: #22c55e;
+      --warning: #eab308;
+      --danger: #ef4444;
+      --radius: 12px;
     }
-    @media (prefers-color-scheme: dark) {
-      :root {
-        --bg: #161411;
-        --fg: #f3eee4;
-        --muted: #b4ab9c;
-        --card: #211d18;
-        --line: #3a342c;
-        --accent: #8fbfa6;
-      }
-    }
-    * { box-sizing: border-box; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { max-width: 100%; overflow-x: hidden; }
     body {
-      margin: 0;
-      font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       background: var(--bg);
-      color: var(--fg);
-      line-height: 1.5;
+      color: var(--text);
+      line-height: 1.6;
+      min-height: 100vh;
     }
-    a { color: var(--accent); }
-    a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-    .wrap { max-width: 640px; margin: 0 auto; padding: 24px 20px 64px; }
-    h1 { font-size: 1.6rem; font-weight: 650; margin: 12px 0 4px; }
-    .lead { color: var(--muted); margin: 0 0 24px; }
-    .card {
-      background: var(--card);
-      border: 1px solid var(--line);
+    a { color: var(--primary); text-decoration: none; }
+    a:hover { color: var(--primary-hover); }
+    a:focus-visible, button:focus-visible, input:focus-visible {
+      outline: 2px solid var(--primary);
+      outline-offset: 2px;
+    }
+    button { cursor: pointer; border: none; font-family: inherit; }
+    .header {
+      background: var(--bg-secondary);
+      border-bottom: 1px solid var(--border);
+      padding: 0.75rem 1.5rem;
+    }
+    .nav {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px 16px;
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--text);
+      min-height: 44px;
+    }
+    .logo svg { flex-shrink: 0; color: var(--primary); }
+    .nav-actions {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+    }
+    .home-link {
+      display: inline-flex;
+      align-items: center;
+      min-height: 44px;
+      padding: 0 12px;
+      border-radius: 8px;
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+    }
+    .home-link:hover { color: var(--primary); }
+    .lang { display: flex; gap: 4px; }
+    .lang button {
+      min-height: 44px;
+      min-width: 44px;
+      padding: 6px 10px;
+      border: 1px solid transparent;
+      border-radius: 8px;
+      background: transparent;
+      color: var(--text-secondary);
+      font: inherit;
+      font-size: 13px;
+    }
+    .lang button.active, .lang button:hover {
+      color: var(--text);
+      background: var(--bg);
+      border-color: var(--border);
+    }
+    .main {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem;
+      min-height: calc(100vh - 160px);
+    }
+    .hero { text-align: center; margin-bottom: 2rem; }
+    .hero h1 { font-size: clamp(1.75rem, 4vw, 2.5rem); margin-bottom: 0.75rem; }
+    .hero .subtitle {
+      color: var(--text-secondary);
+      font-size: 1.1rem;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    .hero .subtitle code {
+      font-family: ui-monospace, "Courier New", monospace;
+      font-size: 0.9em;
+    }
+    .generator {
+      background: var(--bg-card);
       border-radius: var(--radius);
-      padding: 24px;
+      padding: 2rem;
+      border: 1px solid var(--border);
     }
     .password-box {
       display: flex;
-      align-items: stretch;
-      gap: 10px;
-      margin-bottom: 12px;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--bg);
+      border-radius: 8px;
+      padding: 1rem 1.5rem;
+      margin-bottom: 1rem;
+      gap: 1rem;
     }
     .password-box output {
       flex: 1;
-      font-family: ui-monospace, "Courier New", monospace;
-      font-size: 1.15rem;
+      min-width: 0;
+      font-family: "Courier New", ui-monospace, monospace;
+      font-size: 1.25rem;
       word-break: break-all;
-      padding: 14px 16px;
-      background: var(--bg);
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      min-height: 52px;
-      display: flex;
-      align-items: center;
+      overflow-wrap: anywhere;
     }
-    .icon-btns { display: flex; flex-direction: column; gap: 8px; }
+    .icon-btns { display: flex; gap: 0.5rem; flex-shrink: 0; }
     .btn {
-      padding: 10px 16px;
+      padding: 0.6rem 1.2rem;
+      min-height: 44px;
       border-radius: 8px;
-      border: 1px solid var(--line);
-      background: var(--card);
-      color: var(--fg);
+      border: 1px solid var(--border);
+      background: var(--bg);
+      color: var(--text);
       font: inherit;
+      font-size: 0.9rem;
       cursor: pointer;
       white-space: nowrap;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      transition: background 0.2s, border-color 0.2s;
     }
-    .btn:hover { border-color: var(--accent); }
-    .btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-    .btn-primary { background: var(--accent); color: #fff; border-color: var(--accent); }
-    .btn-primary:hover { filter: brightness(1.08); }
+    .btn:hover { border-color: var(--primary); background: var(--bg-secondary); }
+    .btn-primary { background: var(--primary); color: #fff; border-color: var(--primary); }
+    .btn-primary:hover { background: var(--primary-hover); }
     .btn-icon {
       width: 44px;
       height: 44px;
-      padding: 0;
+      min-width: 44px;
+      padding: 0.5rem;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: 8px;
       display: flex;
       align-items: center;
       justify-content: center;
+      transition: background 0.2s;
     }
+    .btn-icon:hover { background: var(--primary); border-color: var(--primary); }
+    .btn-icon.copied { color: var(--success); }
     .strength-track {
-      height: 6px;
-      background: var(--line);
-      border-radius: 3px;
+      height: 4px;
+      background: var(--border);
+      border-radius: 2px;
       overflow: hidden;
-      margin-bottom: 6px;
+      margin-bottom: 0.5rem;
     }
     .strength-fill {
       height: 100%;
       width: 0;
-      border-radius: 3px;
-      transition: width 0.25s, background 0.25s;
+      border-radius: 2px;
+      transition: width 0.3s, background 0.3s;
     }
-    .strength-label { font-size: 0.9rem; font-weight: 600; }
-    fieldset {
-      border: none;
-      margin: 24px 0 0;
-      padding: 0;
-    }
+    .strength-label { font-size: 0.85rem; font-weight: 600; }
+    fieldset { border: none; margin: 1.5rem 0 0; padding: 0; }
     legend {
       font-weight: 600;
       margin-bottom: 12px;
       padding: 0;
+      color: var(--text);
     }
-    .length-row { margin-bottom: 16px; }
-    .length-row label { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.95rem; }
-    input[type="range"] { width: 100%; accent-color: var(--accent); }
+    .length-row { margin-bottom: 1rem; }
+    .length-row label {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 0.5rem;
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+    }
+    input[type="range"] {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 6px;
+      border-radius: 3px;
+      background: var(--border);
+      outline: none;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--primary);
+      cursor: pointer;
+      border: none;
+    }
+    input[type="range"]::-moz-range-thumb {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--primary);
+      cursor: pointer;
+      border: none;
+    }
     .checks {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 12px 16px;
+      gap: 0.75rem;
     }
-    @media (max-width: 480px) { .checks { grid-template-columns: 1fr; } }
     .checks label {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 0.5rem;
       cursor: pointer;
       font-size: 0.95rem;
+      color: var(--text);
+      min-height: 44px;
     }
-    .checks input { width: 18px; height: 18px; accent-color: var(--accent); }
+    .checks input { width: 18px; height: 18px; accent-color: var(--primary); flex-shrink: 0; }
     .batch {
-      margin-top: 24px;
-      padding-top: 20px;
-      border-top: 1px solid var(--line);
+      margin-top: 1.5rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border);
     }
     .batch-list {
-      margin-top: 14px;
+      margin-top: 1rem;
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 0.5rem;
     }
     .batch-list[hidden] { display: none; }
     .batch-item {
       display: flex;
       align-items: center;
+      justify-content: space-between;
       gap: 10px;
-      padding: 10px 12px;
+      padding: 0.75rem 1rem;
       background: var(--bg);
-      border: 1px solid var(--line);
       border-radius: 8px;
     }
     .batch-item code {
       flex: 1;
-      font-family: ui-monospace, monospace;
-      font-size: 0.88rem;
+      min-width: 0;
+      font-family: "Courier New", ui-monospace, monospace;
+      font-size: 0.9rem;
       word-break: break-all;
     }
     .batch-item button {
       flex-shrink: 0;
+      min-height: 44px;
+      min-width: 44px;
       padding: 6px 12px;
       font-size: 0.85rem;
+    }
+    .hint { font-size: 0.85rem; color: var(--text-secondary); margin-top: 1rem; }
+    .info { margin-top: 3rem; }
+    .info h2 {
+      text-align: center;
+      margin-bottom: 2rem;
+      font-size: 1.75rem;
+    }
+    .features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+    }
+    .feature {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      text-align: center;
+    }
+    .feat-icon { color: var(--primary); }
+    .feature h3 { margin: 1rem 0 0.5rem; }
+    .feature p { color: var(--text-secondary); font-size: 0.9rem; }
+    .footer {
+      text-align: center;
+      padding: 2rem 1.5rem;
+      color: var(--text-secondary);
+      font-size: 0.85rem;
+      border-top: 1px solid var(--border);
     }
     .toast {
       position: fixed;
       bottom: 20px;
       left: 50%;
       transform: translateX(-50%);
-      background: var(--fg);
+      background: var(--text);
       color: var(--bg);
       padding: 10px 18px;
       border-radius: 8px;
@@ -175,219 +319,384 @@
       opacity: 0;
       pointer-events: none;
       transition: opacity 0.2s;
+      z-index: 200;
     }
     .toast.show { opacity: 1; }
-    .hint { font-size: 0.85rem; color: var(--muted); margin-top: 16px; }
+    @media (max-width: 560px) {
+      .header, .main { padding-left: 1rem; padding-right: 1rem; }
+      .generator { padding: 1.25rem; }
+      .password-box { flex-wrap: wrap; padding: 1rem; }
+      .checks { grid-template-columns: 1fr; }
+      .hero h1 { font-size: 1.6rem; }
+    }
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <a href="../index.html">← 全部工具</a>
-    <h1>随机密码生成器</h1>
-    <p class="lead">使用 <code>crypto.getRandomValues</code> 在本地生成密码，不上传网络。</p>
+  <header class="header">
+    <nav class="nav">
+      <div class="logo">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect x="3" y="11" width="18" height="11" rx="2" />
+          <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+        </svg>
+        <span>PasswordTools</span>
+      </div>
+      <div class="nav-actions">
+        <a class="home-link" href="../index.html" data-i18n="home">Home</a>
+        <div class="lang">
+          <button type="button" data-lang="zh">中文</button>
+          <button type="button" data-lang="en">EN</button>
+        </div>
+      </div>
+    </nav>
+  </header>
 
-    <div class="card">
+  <main class="main">
+    <section class="hero">
+      <h1 data-i18n="heroTitle">Random Password Generator</h1>
+      <p class="subtitle" data-i18n="heroSub">Generate strong, secure passwords instantly. All generation happens locally in your browser — nothing is sent to any server.</p>
+    </section>
+
+    <div class="generator">
       <div class="password-box">
         <output id="passwordOut" for="lengthSlider" aria-live="polite" aria-atomic="true"></output>
         <div class="icon-btns">
-          <button type="button" class="btn btn-icon" id="btnCopy" aria-label="复制密码">复制</button>
-          <button type="button" class="btn btn-icon" id="btnRegen" aria-label="重新生成">刷新</button>
+          <button type="button" class="btn-icon" id="btnCopy" aria-label="Copy password" title="Copy">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <rect x="9" y="9" width="13" height="13" rx="2" />
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+            </svg>
+          </button>
+          <button type="button" class="btn-icon" id="btnRegen" aria-label="Regenerate" title="Regenerate">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M21 12a9 9 0 1 1-3.2-6.8" />
+              <path d="M21 3v6h-6" />
+            </svg>
+          </button>
         </div>
       </div>
 
       <div class="strength-track" aria-hidden="true">
         <div class="strength-fill" id="strengthFill"></div>
       </div>
-      <p class="strength-label" id="strengthLabel" aria-live="polite">强度：—</p>
+      <p class="strength-label" id="strengthLabel" aria-live="polite"></p>
 
       <fieldset>
-        <legend>选项</legend>
+        <legend data-i18n="options">Options</legend>
         <div class="length-row">
           <label for="lengthSlider">
-            <span>长度</span>
+            <span data-i18n="length">Length</span>
             <span id="lengthVal">16</span>
           </label>
           <input type="range" id="lengthSlider" min="4" max="64" value="16" />
         </div>
         <div class="checks">
-          <label><input type="checkbox" id="optUpper" checked /> 大写字母 A–Z</label>
-          <label><input type="checkbox" id="optLower" checked /> 小写字母 a–z</label>
-          <label><input type="checkbox" id="optNumbers" checked /> 数字 0–9</label>
-          <label><input type="checkbox" id="optSymbols" checked /> 符号 !@#$…</label>
+          <label><input type="checkbox" id="optUpper" checked /> <span data-i18n="optUpper">Uppercase A–Z</span></label>
+          <label><input type="checkbox" id="optLower" checked /> <span data-i18n="optLower">Lowercase a–z</span></label>
+          <label><input type="checkbox" id="optNumbers" checked /> <span data-i18n="optNumbers">Numbers 0–9</span></label>
+          <label><input type="checkbox" id="optSymbols" checked /> <span data-i18n="optSymbols">Symbols !@#$…</span></label>
         </div>
       </fieldset>
 
       <div class="batch">
-        <button type="button" class="btn btn-primary" id="btnBatchToggle" aria-expanded="false" aria-controls="batchList">
-          批量生成 10 条
+        <button type="button" class="btn" id="btnBatchToggle" aria-expanded="false" aria-controls="batchList" data-i18n="batch">
+          Batch generate 10
         </button>
         <div class="batch-list" id="batchList" hidden></div>
       </div>
 
-      <p class="hint">若取消全部字符类型，将自动使用小写字母以保证可生成密码。</p>
+      <p class="hint" data-i18n="hint">If you uncheck every character type, lowercase letters are used so a password can still be generated.</p>
     </div>
-  </div>
-  <div class="toast" id="toast" role="status" aria-live="polite">已复制</div>
 
+    <section class="info">
+      <h2 data-i18n="infoTitle">Why Use a Password Generator?</h2>
+      <div class="features">
+        <div class="feature">
+          <svg class="feat-icon" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          <h3 data-i18n="feat1Title">Maximum Security</h3>
+          <p data-i18n="feat1Desc">Cryptographically random passwords that are virtually impossible to crack through brute force.</p>
+        </div>
+        <div class="feature">
+          <svg class="feat-icon" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          <h3 data-i18n="feat2Title">Instant Generation</h3>
+          <p data-i18n="feat2Desc">Create passwords instantly with customizable length and character options.</p>
+        </div>
+        <div class="feature">
+          <svg class="feat-icon" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          <h3 data-i18n="feat3Title">100% Private</h3>
+          <p data-i18n="feat3Desc">All passwords are generated locally in your browser. Nothing is stored or transmitted.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p data-i18n="footer">&copy; 2026 PasswordTools. All passwords are generated locally in your browser.</p>
+  </footer>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="../assets/i18n.js"></script>
   <script>
-(function () {
-  'use strict';
-
-  var CHARS = {
-    upper: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
-    lower: 'abcdefghijklmnopqrstuvwxyz',
-    numbers: '0123456789',
-    symbols: '!@#$%^&*()_+-=[]{}|;:,.<>?'
+  var I18N = {
+    en: {
+      "document.title": "Password Generator",
+      home: "Home",
+      heroTitle: "Random Password Generator",
+      heroSub: "Generate strong, secure passwords instantly. All generation happens locally in your browser — nothing is sent to any server.",
+      copyAria: "Copy password",
+      regenAria: "Regenerate",
+      copy: "Copy",
+      options: "Options",
+      length: "Length",
+      optUpper: "Uppercase A–Z",
+      optLower: "Lowercase a–z",
+      optNumbers: "Numbers 0–9",
+      optSymbols: "Symbols !@#$…",
+      batch: "Batch generate 10",
+      batchHide: "Hide batch list",
+      hint: "If you uncheck every character type, lowercase letters are used so a password can still be generated.",
+      strength: "Strength",
+      weak: "Weak",
+      medium: "Medium",
+      strong: "Strong",
+      infoTitle: "Why Use a Password Generator?",
+      feat1Title: "Maximum Security",
+      feat1Desc: "Cryptographically random passwords that are virtually impossible to crack through brute force.",
+      feat2Title: "Instant Generation",
+      feat2Desc: "Create passwords instantly with customizable length and character options.",
+      feat3Title: "100% Private",
+      feat3Desc: "All passwords are generated locally in your browser. Nothing is stored or transmitted.",
+      footer: "© 2026 PasswordTools. All passwords are generated locally in your browser.",
+      toastCopied: "Copied to clipboard",
+      toastCopyFail: "Copy failed. Select the text manually."
+    },
+    zh: {
+      "document.title": "密码生成器",
+      home: "全部工具",
+      heroTitle: "随机密码生成器",
+      heroSub: "使用 crypto.getRandomValues 在本地生成密码，不上传网络。",
+      copyAria: "复制密码",
+      regenAria: "重新生成",
+      copy: "复制",
+      options: "选项",
+      length: "长度",
+      optUpper: "大写字母 A–Z",
+      optLower: "小写字母 a–z",
+      optNumbers: "数字 0–9",
+      optSymbols: "符号 !@#$…",
+      batch: "批量生成 10 条",
+      batchHide: "收起批量列表",
+      hint: "若取消全部字符类型，将自动使用小写字母以保证可生成密码。",
+      strength: "强度",
+      weak: "弱",
+      medium: "中等",
+      strong: "强",
+      infoTitle: "为什么使用密码生成器？",
+      feat1Title: "更高安全",
+      feat1Desc: "密码在本地用密码学随机数生成，难以被暴力破解。",
+      feat2Title: "即时生成",
+      feat2Desc: "可自定义长度和字符类型，立刻得到新密码。",
+      feat3Title: "完全私密",
+      feat3Desc: "全部在浏览器本地完成，不存储、不上传。",
+      footer: "© 2026 PasswordTools。所有密码均在浏览器本地生成。",
+      toastCopied: "已复制到剪贴板",
+      toastCopyFail: "复制失败，请手动选择"
+    }
   };
 
-  var lengthSlider = document.getElementById('lengthSlider');
-  var lengthVal = document.getElementById('lengthVal');
-  var optUpper = document.getElementById('optUpper');
-  var optLower = document.getElementById('optLower');
-  var optNumbers = document.getElementById('optNumbers');
-  var optSymbols = document.getElementById('optSymbols');
-  var passwordOut = document.getElementById('passwordOut');
-  var strengthFill = document.getElementById('strengthFill');
-  var strengthLabel = document.getElementById('strengthLabel');
-  var batchList = document.getElementById('batchList');
-  var btnBatchToggle = document.getElementById('btnBatchToggle');
-
-  function toast(msg) {
-    var el = document.getElementById('toast');
-    el.textContent = msg;
-    el.classList.add('show');
-    clearTimeout(toast._t);
-    toast._t = setTimeout(function () { el.classList.remove('show'); }, 1600);
+  function t(key) {
+    var lang = window.WTLang ? WTLang.get() : "en";
+    var pack = I18N[lang] || I18N.en;
+    if (pack[key] != null) return pack[key];
+    return I18N.en[key] != null ? I18N.en[key] : key;
   }
 
-  function copyText(text) {
-    if (navigator.clipboard && window.isSecureContext) {
-      return navigator.clipboard.writeText(text).then(function () {
-        toast('已复制到剪贴板');
-        return true;
-      }).catch(fallback);
-    }
-    return Promise.resolve(fallback());
-    function fallback() {
-      var ta = document.createElement('textarea');
-      ta.value = text;
-      ta.setAttribute('readonly', '');
-      ta.style.position = 'fixed';
-      ta.style.left = '-9999px';
-      document.body.appendChild(ta);
-      ta.select();
-      var ok = false;
-      try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
-      document.body.removeChild(ta);
-      if (ok) toast('已复制到剪贴板');
-      else toast('复制失败，请手动选择');
-      return ok;
-    }
-  }
+  WTLang.apply(I18N);
+  document.querySelectorAll("[data-lang]").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      WTLang.set(btn.getAttribute("data-lang"), I18N);
+      if (window.refreshToolI18n) window.refreshToolI18n();
+    });
+  });
 
-  function getOptions() {
-    return {
-      length: +lengthSlider.value,
-      uppercase: optUpper.checked,
-      lowercase: optLower.checked,
-      numbers: optNumbers.checked,
-      symbols: optSymbols.checked
+  (function () {
+    'use strict';
+
+    var CHARS = {
+      upper: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+      lower: 'abcdefghijklmnopqrstuvwxyz',
+      numbers: '0123456789',
+      symbols: '!@#$%^&*()_+-=[]{}|;:,.<>?'
     };
-  }
 
-  function buildCharset(opts) {
-    var charset = '';
-    if (opts.uppercase) charset += CHARS.upper;
-    if (opts.lowercase) charset += CHARS.lower;
-    if (opts.numbers) charset += CHARS.numbers;
-    if (opts.symbols) charset += CHARS.symbols;
-    if (!charset) charset = CHARS.lower;
-    return charset;
-  }
+    var lengthSlider = document.getElementById('lengthSlider');
+    var lengthVal = document.getElementById('lengthVal');
+    var optUpper = document.getElementById('optUpper');
+    var optLower = document.getElementById('optLower');
+    var optNumbers = document.getElementById('optNumbers');
+    var optSymbols = document.getElementById('optSymbols');
+    var passwordOut = document.getElementById('passwordOut');
+    var strengthFill = document.getElementById('strengthFill');
+    var strengthLabel = document.getElementById('strengthLabel');
+    var batchList = document.getElementById('batchList');
+    var btnBatchToggle = document.getElementById('btnBatchToggle');
+    var btnCopy = document.getElementById('btnCopy');
+    var btnRegen = document.getElementById('btnRegen');
 
-  function generatePassword(opts) {
-    var charset = buildCharset(opts);
-    var len = Math.max(4, Math.min(64, opts.length));
-    var array = new Uint32Array(len);
-    crypto.getRandomValues(array);
-    return Array.from(array, function (v) {
-      return charset[v % charset.length];
-    }).join('');
-  }
-
-  function getPasswordStrength(password) {
-    var score = 0;
-    if (password.length >= 8) score++;
-    if (password.length >= 12) score++;
-    if (password.length >= 16) score++;
-    if (/[a-z]/.test(password) && /[A-Z]/.test(password)) score++;
-    if (/\d/.test(password)) score++;
-    if (/[^a-zA-Z0-9]/.test(password)) score++;
-    if (score <= 2) return { score: score, label: '弱', color: 'var(--danger)' };
-    if (score <= 4) return { score: score, label: '中等', color: 'var(--warning)' };
-    return { score: score, label: '强', color: 'var(--success)' };
-  }
-
-  var currentPassword = '';
-
-  function renderStrength(pw) {
-    var s = getPasswordStrength(pw);
-    strengthFill.style.width = (s.score / 6 * 100) + '%';
-    strengthFill.style.background = s.color;
-    strengthLabel.textContent = '强度：' + s.label;
-    strengthLabel.style.color = s.color;
-  }
-
-  function regenerate() {
-    lengthVal.textContent = lengthSlider.value;
-    currentPassword = generatePassword(getOptions());
-    passwordOut.textContent = currentPassword;
-    renderStrength(currentPassword);
-    if (!batchList.hidden) fillBatch();
-  }
-
-  function fillBatch() {
-    batchList.innerHTML = '';
-    var opts = getOptions();
-    for (var i = 0; i < 10; i++) {
-      var pw = generatePassword(opts);
-      var row = document.createElement('div');
-      row.className = 'batch-item';
-      var code = document.createElement('code');
-      code.textContent = pw;
-      var btn = document.createElement('button');
-      btn.type = 'button';
-      btn.className = 'btn';
-      btn.textContent = '复制';
-      btn.addEventListener('click', function (p) {
-        return function () { copyText(p); };
-      }(pw));
-      row.appendChild(code);
-      row.appendChild(btn);
-      batchList.appendChild(row);
+    function toast(msg) {
+      var el = document.getElementById('toast');
+      el.textContent = msg;
+      el.classList.add('show');
+      clearTimeout(toast._t);
+      toast._t = setTimeout(function () { el.classList.remove('show'); }, 1600);
     }
-  }
 
-  lengthSlider.addEventListener('input', regenerate);
-  [optUpper, optLower, optNumbers, optSymbols].forEach(function (el) {
-    el.addEventListener('change', regenerate);
-  });
+    function copyText(text) {
+      if (navigator.clipboard && window.isSecureContext) {
+        return navigator.clipboard.writeText(text).then(function () {
+          toast(t('toastCopied'));
+          return true;
+        }).catch(fallback);
+      }
+      return Promise.resolve(fallback());
+      function fallback() {
+        var ta = document.createElement('textarea');
+        ta.value = text;
+        ta.setAttribute('readonly', '');
+        ta.style.position = 'fixed';
+        ta.style.left = '-9999px';
+        document.body.appendChild(ta);
+        ta.select();
+        var ok = false;
+        try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+        document.body.removeChild(ta);
+        if (ok) toast(t('toastCopied'));
+        else toast(t('toastCopyFail'));
+        return ok;
+      }
+    }
 
-  document.getElementById('btnRegen').addEventListener('click', regenerate);
-  document.getElementById('btnCopy').addEventListener('click', function () {
-    copyText(currentPassword);
-  });
+    function getOptions() {
+      return {
+        length: +lengthSlider.value,
+        uppercase: optUpper.checked,
+        lowercase: optLower.checked,
+        numbers: optNumbers.checked,
+        symbols: optSymbols.checked
+      };
+    }
 
-  btnBatchToggle.addEventListener('click', function () {
-    var show = batchList.hidden;
-    batchList.hidden = !show;
-    btnBatchToggle.setAttribute('aria-expanded', show ? 'true' : 'false');
-    btnBatchToggle.textContent = show ? '收起批量列表' : '批量生成 10 条';
-    if (show) fillBatch();
-  });
+    function buildCharset(opts) {
+      var charset = '';
+      if (opts.uppercase) charset += CHARS.upper;
+      if (opts.lowercase) charset += CHARS.lower;
+      if (opts.numbers) charset += CHARS.numbers;
+      if (opts.symbols) charset += CHARS.symbols;
+      if (!charset) charset = CHARS.lower;
+      return charset;
+    }
 
-  regenerate();
-})();
+    function generatePassword(opts) {
+      var charset = buildCharset(opts);
+      var len = Math.max(4, Math.min(64, opts.length));
+      var array = new Uint32Array(len);
+      crypto.getRandomValues(array);
+      return Array.from(array, function (v) {
+        return charset[v % charset.length];
+      }).join('');
+    }
+
+    function getPasswordStrength(password) {
+      var score = 0;
+      if (password.length >= 8) score++;
+      if (password.length >= 12) score++;
+      if (password.length >= 16) score++;
+      if (/[a-z]/.test(password) && /[A-Z]/.test(password)) score++;
+      if (/\d/.test(password)) score++;
+      if (/[^a-zA-Z0-9]/.test(password)) score++;
+      if (score <= 2) return { score: score, label: t('weak'), color: 'var(--danger)' };
+      if (score <= 4) return { score: score, label: t('medium'), color: 'var(--warning)' };
+      return { score: score, label: t('strong'), color: 'var(--success)' };
+    }
+
+    var currentPassword = '';
+
+    function renderStrength(pw) {
+      var s = getPasswordStrength(pw);
+      strengthFill.style.width = (s.score / 6 * 100) + '%';
+      strengthFill.style.background = s.color;
+      strengthLabel.textContent = t('strength') + ': ' + s.label;
+      strengthLabel.style.color = s.color;
+    }
+
+    function regenerate() {
+      lengthVal.textContent = lengthSlider.value;
+      currentPassword = generatePassword(getOptions());
+      passwordOut.textContent = currentPassword;
+      renderStrength(currentPassword);
+      if (!batchList.hidden) fillBatch();
+    }
+
+    function fillBatch() {
+      batchList.innerHTML = '';
+      var opts = getOptions();
+      for (var i = 0; i < 10; i++) {
+        var pw = generatePassword(opts);
+        var row = document.createElement('div');
+        row.className = 'batch-item';
+        var code = document.createElement('code');
+        code.textContent = pw;
+        var btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'btn';
+        btn.textContent = t('copy');
+        btn.addEventListener('click', function (p) {
+          return function () { copyText(p); };
+        }(pw));
+        row.appendChild(code);
+        row.appendChild(btn);
+        batchList.appendChild(row);
+      }
+    }
+
+    function syncBatchToggleLabel() {
+      var show = !batchList.hidden;
+      btnBatchToggle.textContent = show ? t('batchHide') : t('batch');
+    }
+
+    lengthSlider.addEventListener('input', regenerate);
+    [optUpper, optLower, optNumbers, optSymbols].forEach(function (el) {
+      el.addEventListener('change', regenerate);
+    });
+
+    btnRegen.addEventListener('click', regenerate);
+    btnCopy.addEventListener('click', function () {
+      copyText(currentPassword);
+    });
+
+    btnBatchToggle.addEventListener('click', function () {
+      var show = batchList.hidden;
+      batchList.hidden = !show;
+      btnBatchToggle.setAttribute('aria-expanded', show ? 'true' : 'false');
+      syncBatchToggleLabel();
+      if (show) fillBatch();
+    });
+
+    window.refreshToolI18n = function () {
+      renderStrength(currentPassword);
+      syncBatchToggleLabel();
+      batchList.querySelectorAll('button').forEach(function (b) {
+        b.textContent = t('copy');
+      });
+      btnCopy.setAttribute('aria-label', t('copyAria'));
+      btnCopy.setAttribute('title', t('copyAria'));
+      btnRegen.setAttribute('aria-label', t('regenAria'));
+      btnRegen.setAttribute('title', t('regenAria'));
+    };
+
+    regenerate();
+    window.refreshToolI18n();
+  })();
   </script>
 </body>
 </html>
