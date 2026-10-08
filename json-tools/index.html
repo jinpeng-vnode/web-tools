@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>JSON 工具</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg: #f4f1ea;
+      --fg: #1c1915;
+      --muted: #5c564c;
+      --card: #fffdf8;
+      --line: #d9d2c5;
+      --accent: #1f4d3a;
+      --pass: #15803d;
+      --fail: #b91c1c;
+      --warn: #b45309;
+      --radius: 10px;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #161411;
+        --fg: #f3eee4;
+        --muted: #b4ab9c;
+        --card: #211d18;
+        --line: #3a342c;
+        --accent: #8fbfa6;
+      }
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      background: var(--bg);
+      color: var(--fg);
+      line-height: 1.5;
+    }
+    a { color: var(--accent); }
+    a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+    .wrap { max-width: 960px; margin: 0 auto; padding: 24px 20px 64px; }
+    h1 { font-size: 1.6rem; font-weight: 650; margin: 12px 0 4px; }
+    .lead { color: var(--muted); margin: 0 0 20px; }
+    .tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 20px;
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 12px;
+    }
+    .tabs [role="tab"] {
+      padding: 8px 14px;
+      border: 1px solid transparent;
+      border-radius: 8px;
+      background: transparent;
+      color: var(--muted);
+      font: inherit;
+      cursor: pointer;
+    }
+    .tabs [role="tab"]:hover { color: var(--fg); background: var(--card); }
+    .tabs [role="tab"][aria-selected="true"] {
+      color: var(--fg);
+      border-color: var(--line);
+      background: var(--card);
+      font-weight: 600;
+    }
+    .tabs [role="tab"]:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+    [role="tabpanel"] { display: none; }
+    [role="tabpanel"].active { display: block; }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 20px;
+    }
+    label.field-label { display: block; font-size: 0.85rem; font-weight: 600; color: var(--muted); margin-bottom: 6px; }
+    textarea, input[type="text"] {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--bg);
+      color: var(--fg);
+      font: inherit;
+      font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+      font-size: 0.88rem;
+    }
+    textarea { min-height: 220px; resize: vertical; }
+    textarea:focus-visible, input:focus-visible, button:focus-visible, select:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+    .toolbar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin: 12px 0; }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 9px 16px;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      background: var(--card);
+      color: var(--fg);
+      font: inherit;
+      cursor: pointer;
+    }
+    .btn:hover { border-color: var(--accent); }
+    .btn-primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .btn-primary:hover { filter: brightness(1.08); }
+    .msg {
+      padding: 10px 12px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      margin-top: 10px;
+    }
+    .msg.err { background: color-mix(in srgb, var(--fail) 12%, var(--card)); border: 1px solid var(--fail); color: var(--fail); }
+    .msg.ok { background: color-mix(in srgb, var(--pass) 12%, var(--card)); border: 1px solid var(--pass); color: var(--pass); }
+    .msg.info { background: color-mix(in srgb, var(--accent) 10%, var(--card)); border: 1px solid var(--line); color: var(--muted); }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    @media (max-width: 720px) { .grid-2 { grid-template-columns: 1fr; } }
+    .convert-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 12px; }
+    select {
+      padding: 9px 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--bg);
+      color: var(--fg);
+      font: inherit;
+    }
+    pre.out {
+      margin: 0;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--bg);
+      overflow: auto;
+      max-height: 360px;
+      font-size: 0.85rem;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+    .diff-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; font-family: ui-monospace, monospace; font-size: 0.85rem; }
+    .diff-list li { padding: 8px 10px; border-radius: 6px; border: 1px solid var(--line); }
+    .diff-add { border-color: var(--pass) !important; }
+    .diff-del { border-color: var(--fail) !important; }
+    .diff-chg { border-color: var(--warn) !important; }
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <p class="top"><a class="back" href="../index.html">← 返回工具列表</a></p>
+    <h1>JSON 工具</h1>
+    <p class="lead">格式化、校验、压缩、格式转换、对比与 JSONPath 查询。纯静态页面，无需构建。</p>
+
+    <div class="tabs" role="tablist" aria-label="JSON 功能">
+      <button type="button" role="tab" id="tab-fmt" aria-selected="true" aria-controls="panel-fmt">格式化</button>
+      <button type="button" role="tab" id="tab-val" aria-selected="false" aria-controls="panel-val">校验</button>
+      <button type="button" role="tab" id="tab-min" aria-selected="false" aria-controls="panel-min">压缩</button>
+      <button type="button" role="tab" id="tab-cvt" aria-selected="false" aria-controls="panel-cvt">转换</button>
+      <button type="button" role="tab" id="tab-cmp" aria-selected="false" aria-controls="panel-cmp">对比</button>
+      <button type="button" role="tab" id="tab-path" aria-selected="false" aria-controls="panel-path">JSONPath</button>
+    </div>
+
+    <div id="panel-fmt" class="card active" role="tabpanel" aria-labelledby="tab-fmt">
+      <label class="field-label" for="fmt-in">JSON 输入</label>
+      <textarea id="fmt-in" spellcheck="false" placeholder='{"hello":"world"}'></textarea>
+      <div class="toolbar">
+        <button type="button" class="btn btn-primary" id="btn-fmt">格式化</button>
+        <button type="button" class="btn" id="btn-fmt-copy">复制</button>
+      </div>
+      <label class="field-label" for="fmt-out">输出</label>
+      <textarea id="fmt-out" readonly spellcheck="false" aria-readonly="true"></textarea>
+      <div id="fmt-msg" class="msg hidden" role="status"></div>
+    </div>
+
+    <div id="panel-val" class="card" role="tabpanel" aria-labelledby="tab-val" hidden>
+      <label class="field-label" for="val-in">JSON 输入</label>
+      <textarea id="val-in" spellcheck="false"></textarea>
+      <div class="toolbar">
+        <button type="button" class="btn btn-primary" id="btn-val">校验</button>
+      </div>
+      <div id="val-msg" class="msg hidden" role="status"></div>
+    </div>
+
+    <div id="panel-min" class="card" role="tabpanel" aria-labelledby="tab-min" hidden>
+      <label class="field-label" for="min-in">JSON 输入</label>
+      <textarea id="min-in" spellcheck="false"></textarea>
+      <div class="toolbar">
+        <button type="button" class="btn btn-primary" id="btn-min">压缩</button>
+        <button type="button" class="btn" id="btn-min-copy">复制</button>
+      </div>
+      <label class="field-label" for="min-out">输出</label>
+      <textarea id="min-out" readonly spellcheck="false"></textarea>
+      <div id="min-msg" class="msg hidden" role="status"></div>
+    </div>
+
+    <div id="panel-cvt" class="card" role="tabpanel" aria-labelledby="tab-cvt" hidden>
+      <label class="field-label" for="cvt-in">JSON 输入</label>
+      <textarea id="cvt-in" spellcheck="false"></textarea>
+      <div class="convert-row">
+        <label class="field-label" for="cvt-type" style="margin:0">目标格式</label>
+        <select id="cvt-type" aria-label="目标格式">
+          <option value="yaml">YAML</option>
+          <option value="csv">CSV</option>
+          <option value="xml">XML</option>
+        </select>
+        <button type="button" class="btn btn-primary" id="btn-cvt">转换</button>
+        <button type="button" class="btn" id="btn-cvt-copy">复制</button>
+      </div>
+      <label class="field-label" for="cvt-out">输出</label>
+      <pre class="out" id="cvt-out"></pre>
+      <div id="cvt-msg" class="msg hidden" role="status"></div>
+    </div>
+
+    <div id="panel-cmp" class="card" role="tabpanel" aria-labelledby="tab-cmp" hidden>
+      <div class="grid-2">
+        <div>
+          <label class="field-label" for="cmp-a">JSON A</label>
+          <textarea id="cmp-a" spellcheck="false"></textarea>
+        </div>
+        <div>
+          <label class="field-label" for="cmp-b">JSON B</label>
+          <textarea id="cmp-b" spellcheck="false"></textarea>
+        </div>
+      </div>
+      <div class="toolbar">
+        <button type="button" class="btn btn-primary" id="btn-cmp">对比</button>
+      </div>
+      <ul class="diff-list" id="cmp-list" aria-live="polite"></ul>
+      <div id="cmp-msg" class="msg hidden" role="status"></div>
+    </div>
+
+    <div id="panel-path" class="card" role="tabpanel" aria-labelledby="tab-path" hidden>
+      <label class="field-label" for="path-in">JSON 输入</label>
+      <textarea id="path-in" spellcheck="false"></textarea>
+      <label class="field-label" for="path-q">JSONPath（支持 $.a.b、$.arr[0]、$..name）</label>
+      <input type="text" id="path-q" value="$." spellcheck="false" />
+      <div class="toolbar">
+        <button type="button" class="btn btn-primary" id="btn-path">查询</button>
+        <button type="button" class="btn" id="btn-path-copy">复制结果</button>
+      </div>
+      <pre class="out" id="path-out"></pre>
+      <div id="path-msg" class="msg hidden" role="status"></div>
+    </div>
+  </div>
+
+  <script>
+(function () {
+  function showMsg(el, text, kind) {
+    el.textContent = text;
+    el.classList.remove('hidden', 'ok', 'err', 'info');
+    el.classList.add(kind || 'info');
+  }
+  function hideMsg(el) {
+    el.classList.add('hidden');
+    el.textContent = '';
+  }
+
+  function parseJson(text) {
+    var t = (text || '').trim();
+    if (!t) throw new Error('JSON 为空，请输入内容');
+    return JSON.parse(t);
+  }
+
+  function copyText(text, btn) {
+    if (!text) return;
+    navigator.clipboard.writeText(text).then(function () {
+      var old = btn.textContent;
+      btn.textContent = '已复制';
+      setTimeout(function () { btn.textContent = old; }, 1200);
+    }).catch(function () {
+      window.prompt('复制以下内容', text);
+    });
+  }
+
+  /* tabs */
+  var tabs = document.querySelectorAll('[role="tab"]');
+  var panels = document.querySelectorAll('[role="tabpanel"]');
+  tabs.forEach(function (tab) {
+    tab.addEventListener('click', function () {
+      tabs.forEach(function (t) {
+        t.setAttribute('aria-selected', 'false');
+      });
+      panels.forEach(function (p) {
+        p.classList.remove('active');
+        p.hidden = true;
+      });
+      tab.setAttribute('aria-selected', 'true');
+      var panel = document.getElementById(tab.getAttribute('aria-controls'));
+      panel.classList.add('active');
+      panel.hidden = false;
+    });
+  });
+
+  /* format */
+  var fmtIn = document.getElementById('fmt-in');
+  var fmtOut = document.getElementById('fmt-out');
+  var fmtMsg = document.getElementById('fmt-msg');
+  document.getElementById('btn-fmt').addEventListener('click', function () {
+    try {
+      var obj = parseJson(fmtIn.value);
+      fmtOut.value = JSON.stringify(obj, null, 2);
+      showMsg(fmtMsg, '格式化成功', 'ok');
+    } catch (e) {
+      fmtOut.value = '';
+      showMsg(fmtMsg, e.message || String(e), 'err');
+    }
+  });
+  document.getElementById('btn-fmt-copy').addEventListener('click', function () {
+    copyText(fmtOut.value, this);
+  });
+
+  /* validate */
+  var valIn = document.getElementById('val-in');
+  var valMsg = document.getElementById('val-msg');
+  document.getElementById('btn-val').addEventListener('click', function () {
+    try {
+      parseJson(valIn.value);
+      showMsg(valMsg, '有效：JSON 语法正确', 'ok');
+    } catch (e) {
+      showMsg(valMsg, '无效：' + (e.message || String(e)), 'err');
+    }
+  });
+
+  /* minify */
+  var minIn = document.getElementById('min-in');
+  var minOut = document.getElementById('min-out');
+  var minMsg = document.getElementById('min-msg');
+  document.getElementById('btn-min').addEventListener('click', function () {
+    try {
+      var obj = parseJson(minIn.value);
+      minOut.value = JSON.stringify(obj);
+      showMsg(minMsg, '压缩成功', 'ok');
+    } catch (e) {
+      minOut.value = '';
+      showMsg(minMsg, e.message || String(e), 'err');
+    }
+  });
+  document.getElementById('btn-min-copy').addEventListener('click', function () {
+    copyText(minOut.value, this);
+  });
+
+  /* convert */
+  function jsonToYaml(value, indent) {
+    indent = indent || 0;
+    var sp = '  '.repeat(indent);
+    if (value === null) return 'null';
+    var t = typeof value;
+    if (t === 'number' || t === 'boolean') return String(value);
+    if (t === 'string') {
+      if (/[\n:"'\\]/.test(value) || /^\s|\s$/.test(value)) return JSON.stringify(value);
+      return value;
+    }
+    if (Array.isArray(value)) {
+      if (!value.length) return '[]';
+      return value.map(function (item) {
+        if (item !== null && typeof item === 'object') {
+          var inner = jsonToYaml(item, indent + 1);
+          if (inner.indexOf('\n') >= 0) return sp + '-\n' + inner.split('\n').map(function (l) { return sp + '  ' + l; }).join('\n');
+          return sp + '- ' + inner;
+        }
+        return sp + '- ' + jsonToYaml(item, indent + 1);
+      }).join('\n');
+    }
+    var lines = [];
+    Object.keys(value).forEach(function (k) {
+      var v = value[k];
+      if (v !== null && typeof v === 'object') {
+        lines.push(sp + k + ':');
+        lines.push(jsonToYaml(v, indent + 1));
+      } else {
+        lines.push(sp + k + ': ' + jsonToYaml(v, indent + 1));
+      }
+    });
+    return lines.join('\n');
+  }
+
+  function jsonToCsv(root) {
+    if (!Array.isArray(root)) throw new Error('CSV 转换要求根节点为对象数组');
+    if (!root.length) return '';
+    var keys = [];
+    root.forEach(function (row) {
+      if (row && typeof row === 'object' && !Array.isArray(row)) {
+        Object.keys(row).forEach(function (k) {
+          if (keys.indexOf(k) < 0) keys.push(k);
+        });
+      }
+    });
+    function esc(cell) {
+      var s = cell === null || cell === undefined ? '' : String(cell);
+      if (/[",\n\r]/.test(s)) return '"' + s.replace(/"/g, '""') + '"';
+      return s;
+    }
+    var lines = [keys.map(esc).join(',')];
+    root.forEach(function (row) {
+      lines.push(keys.map(function (k) { return esc(row && row[k]); }).join(','));
+    });
+    return lines.join('\n');
+  }
+
+  function escapeXml(s) {
+    return String(s)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  function jsonToXml(value, tag) {
+    tag = tag || 'root';
+    if (value === null || value === undefined) return '<' + tag + '/>';
+    if (typeof value !== 'object') return '<' + tag + '>' + escapeXml(value) + '</' + tag + '>';
+    if (Array.isArray(value)) {
+      return value.map(function (item, i) {
+        return jsonToXml(item, tag + '_item');
+      }).join('\n');
+    }
+    return Object.keys(value).map(function (k) {
+      var safe = /^[A-Za-z_][\w.-]*$/.test(k) ? k : 'item';
+      return jsonToXml(value[k], safe);
+    }).join('\n');
+  }
+
+  var cvtIn = document.getElementById('cvt-in');
+  var cvtOut = document.getElementById('cvt-out');
+  var cvtMsg = document.getElementById('cvt-msg');
+  document.getElementById('btn-cvt').addEventListener('click', function () {
+    try {
+      var obj = parseJson(cvtIn.value);
+      var type = document.getElementById('cvt-type').value;
+      var out;
+      if (type === 'yaml') out = jsonToYaml(obj);
+      else if (type === 'csv') out = jsonToCsv(obj);
+      else out = '<?xml version="1.0" encoding="UTF-8"?>\n' + jsonToXml(obj, 'root');
+      cvtOut.textContent = out;
+      showMsg(cvtMsg, '转换完成', 'ok');
+    } catch (e) {
+      cvtOut.textContent = '';
+      showMsg(cvtMsg, e.message || String(e), 'err');
+    }
+  });
+  document.getElementById('btn-cvt-copy').addEventListener('click', function () {
+    copyText(cvtOut.textContent, this);
+  });
+
+  /* compare */
+  function flatten(obj, prefix, out) {
+    out = out || {};
+    prefix = prefix || '';
+    if (obj === null || typeof obj !== 'object') {
+      out[prefix || '(root)'] = obj;
+      return out;
+    }
+    if (Array.isArray(obj)) {
+      obj.forEach(function (v, i) {
+        flatten(v, prefix ? prefix + '.' + i : String(i), out);
+      });
+      return out;
+    }
+    Object.keys(obj).forEach(function (k) {
+      flatten(obj[k], prefix ? prefix + '.' + k : k, out);
+    });
+    return out;
+  }
+
+  var cmpList = document.getElementById('cmp-list');
+  var cmpMsg = document.getElementById('cmp-msg');
+  document.getElementById('btn-cmp').addEventListener('click', function () {
+    cmpList.innerHTML = '';
+    try {
+      var a = flatten(parseJson(document.getElementById('cmp-a').value));
+      var b = flatten(parseJson(document.getElementById('cmp-b').value));
+      var keys = {};
+      Object.keys(a).forEach(function (k) { keys[k] = true; });
+      Object.keys(b).forEach(function (k) { keys[k] = true; });
+      var count = 0;
+      Object.keys(keys).sort().forEach(function (k) {
+        var inA = Object.prototype.hasOwnProperty.call(a, k);
+        var inB = Object.prototype.hasOwnProperty.call(b, k);
+        var li = document.createElement('li');
+        if (inA && !inB) {
+          li.className = 'diff-del';
+          li.textContent = '− ' + k + ' = ' + JSON.stringify(a[k]);
+          count++;
+        } else if (!inA && inB) {
+          li.className = 'diff-add';
+          li.textContent = '+ ' + k + ' = ' + JSON.stringify(b[k]);
+          count++;
+        } else if (JSON.stringify(a[k]) !== JSON.stringify(b[k])) {
+          li.className = 'diff-chg';
+          li.textContent = '~ ' + k + ': ' + JSON.stringify(a[k]) + ' → ' + JSON.stringify(b[k]);
+          count++;
+        } else {
+          return;
+        }
+        cmpList.appendChild(li);
+      });
+      if (!count) showMsg(cmpMsg, '两份 JSON 扁平化后无差异', 'ok');
+      else { hideMsg(cmpMsg); showMsg(cmpMsg, '发现 ' + count + ' 处差异', 'info'); }
+    } catch (e) {
+      showMsg(cmpMsg, e.message || String(e), 'err');
+    }
+  });
+
+  /* JSONPath */
+  function findByKeyDeep(node, key, path, acc) {
+    acc = acc || [];
+    path = path || '$';
+    if (node !== null && typeof node === 'object') {
+      if (!Array.isArray(node)) {
+        if (Object.prototype.hasOwnProperty.call(node, key)) {
+          acc.push({ path: path + '.' + key, value: node[key] });
+        }
+        Object.keys(node).forEach(function (k) {
+          findByKeyDeep(node[k], key, path + '.' + k, acc);
+        });
+      } else {
+        node.forEach(function (item, i) {
+          findByKeyDeep(item, key, path + '[' + i + ']', acc);
+        });
+      }
+    }
+    return acc;
+  }
+
+  function evalJsonPath(data, query) {
+    query = (query || '').trim();
+    if (!query) throw new Error('请输入 JSONPath');
+    if (query.indexOf('$..') === 0) {
+      var key = query.slice(3);
+      if (!key) throw new Error('$.. 后需跟字段名');
+      return findByKeyDeep(data, key);
+    }
+    if (query.indexOf('$.') !== 0 && query !== '$') throw new Error('路径需以 $. 或 $.. 开头');
+    if (query === '$') return data;
+    var rest = query.slice(2);
+    var tokens = [];
+    var re = /\.([^.\[\]]+)|\[(\d+)\]/g;
+    var m;
+    while ((m = re.exec(rest)) !== null) {
+      if (m[1] !== undefined) tokens.push({ type: 'key', value: m[1] });
+      else tokens.push({ type: 'index', value: parseInt(m[2], 10) });
+    }
+    if (!tokens.length && rest) throw new Error('无法解析路径：' + query);
+    var cur = data;
+    for (var i = 0; i < tokens.length; i++) {
+      var tok = tokens[i];
+      if (cur === null || cur === undefined) throw new Error('路径在 "' + tok.value + '" 处无值');
+      if (tok.type === 'key') cur = cur[tok.value];
+      else cur = cur[tok.value];
+    }
+    return cur;
+  }
+
+  var pathOut = document.getElementById('path-out');
+  var pathMsg = document.getElementById('path-msg');
+  document.getElementById('path-q').value = '$.';
+  document.getElementById('btn-path').addEventListener('click', function () {
+    try {
+      var data = parseJson(document.getElementById('path-in').value);
+      var result = evalJsonPath(data, document.getElementById('path-q').value);
+      if (Array.isArray(result) && result.length && result[0].path) {
+        pathOut.textContent = result.map(function (r) {
+          return r.path + ' = ' + JSON.stringify(r.value);
+        }).join('\n');
+      } else {
+        pathOut.textContent = JSON.stringify(result, null, 2);
+      }
+      showMsg(pathMsg, '查询成功', 'ok');
+    } catch (e) {
+      pathOut.textContent = '';
+      showMsg(pathMsg, e.message || String(e), 'err');
+    }
+  });
+  document.getElementById('btn-path-copy').addEventListener('click', function () {
+    copyText(pathOut.textContent, this);
+  });
+})();
+  </script>
+</body>
+</html>

@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>计算器工具</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg: #f4f1ea;
+      --fg: #1c1915;
+      --muted: #5c564c;
+      --card: #fffdf8;
+      --line: #d9d2c5;
+      --accent: #1f4d3a;
+      --pass: #15803d;
+      --fail: #b91c1c;
+      --radius: 10px;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #161411;
+        --fg: #f3eee4;
+        --muted: #b4ab9c;
+        --card: #211d18;
+        --line: #3a342c;
+        --accent: #8fbfa6;
+      }
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      background: var(--bg);
+      color: var(--fg);
+      line-height: 1.5;
+    }
+    a { color: var(--accent); }
+    a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+    .wrap { max-width: 960px; margin: 0 auto; padding: 24px 20px 64px; }
+    .top { margin-bottom: 24px; }
+    h1 { font-size: 1.6rem; font-weight: 650; margin: 12px 0 4px; }
+    .lead { color: var(--muted); margin: 0 0 20px; }
+    .layout {
+      display: grid;
+      grid-template-columns: 200px 1fr;
+      gap: 20px;
+      align-items: start;
+    }
+    @media (max-width: 720px) {
+      .layout { grid-template-columns: 1fr; }
+      .nav { display: flex; flex-wrap: wrap; gap: 6px; }
+      .nav [role="tab"] { flex: 1 1 auto; min-width: 7em; text-align: center; }
+    }
+    .nav {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      position: sticky;
+      top: 16px;
+    }
+    .nav [role="tab"] {
+      padding: 10px 12px;
+      border: 1px solid transparent;
+      border-radius: 8px;
+      background: transparent;
+      color: var(--muted);
+      font: inherit;
+      text-align: left;
+      cursor: pointer;
+    }
+    .nav [role="tab"]:hover { color: var(--fg); background: var(--card); }
+    .nav [role="tab"][aria-selected="true"] {
+      color: var(--fg);
+      border-color: var(--line);
+      background: var(--card);
+      font-weight: 600;
+    }
+    .nav [role="tab"]:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+    [role="tabpanel"] { display: none; }
+    [role="tabpanel"].active { display: block; }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 20px;
+    }
+    .panel-title { font-size: 1.15rem; font-weight: 600; margin: 0 0 6px; }
+    .panel-desc { color: var(--muted); font-size: 0.9rem; margin: 0 0 20px; }
+    label.field-label { display: block; font-size: 0.85rem; font-weight: 600; color: var(--muted); margin-bottom: 6px; }
+    input[type="text"], input[type="number"], input[type="date"], select {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--bg);
+      color: var(--fg);
+      font: inherit;
+    }
+    input:focus-visible, select:focus-visible, button:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 9px 16px;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      background: var(--card);
+      color: var(--fg);
+      font: inherit;
+      cursor: pointer;
+    }
+    .btn:hover { border-color: var(--accent); }
+    .btn-primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .btn-primary:hover { filter: brightness(1.08); }
+    .stack { display: flex; flex-direction: column; gap: 14px; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    @media (max-width: 520px) { .grid-2 { grid-template-columns: 1fr; } }
+    .result {
+      margin-top: 16px;
+      padding: 14px 16px;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      background: var(--bg);
+      font-size: 0.95rem;
+    }
+    .result.ok { border-color: var(--pass); }
+    .result.err { border-color: var(--fail); color: var(--fail); }
+    .result strong { font-size: 1.1rem; }
+    .hint { font-size: 0.85rem; color: var(--muted); margin-top: 8px; }
+    hr.split { border: none; border-top: 1px solid var(--line); margin: 20px 0; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="top">
+      <a class="back" href="../index.html">← 返回工具首页</a>
+      <h1>计算器工具</h1>
+      <p class="lead">常用换算与计算，全部在浏览器本地完成，无需联网。</p>
+    </header>
+
+    <div class="layout">
+      <nav class="nav" role="tablist" aria-label="计算器分类">
+        <button type="button" role="tab" id="tab-bmi" aria-controls="panel-bmi" aria-selected="true">BMI</button>
+        <button type="button" role="tab" id="tab-loan" aria-controls="panel-loan" aria-selected="false">贷款</button>
+        <button type="button" role="tab" id="tab-tip" aria-controls="panel-tip" aria-selected="false">小费</button>
+        <button type="button" role="tab" id="tab-age" aria-controls="panel-age" aria-selected="false">年龄</button>
+        <button type="button" role="tab" id="tab-pct" aria-controls="panel-pct" aria-selected="false">百分比</button>
+        <button type="button" role="tab" id="tab-temp" aria-controls="panel-temp" aria-selected="false">温度</button>
+        <button type="button" role="tab" id="tab-len" aria-controls="panel-len" aria-selected="false">长度</button>
+        <button type="button" role="tab" id="tab-weight" aria-controls="panel-weight" aria-selected="false">重量</button>
+      </nav>
+
+      <div class="panels">
+        <section class="card active" role="tabpanel" id="panel-bmi" aria-labelledby="tab-bmi">
+          <h2 class="panel-title">BMI 指数</h2>
+          <p class="panel-desc">WHO 标准：偏瘦 &lt;18.5，正常 &lt;25，偏胖 &lt;30，肥胖 ≥30。</p>
+          <div class="stack">
+            <div class="grid-2">
+              <div>
+                <label class="field-label" for="bmi-height">身高（厘米）</label>
+                <input type="number" id="bmi-height" min="1" step="0.1" inputmode="decimal" placeholder="例如 170" />
+              </div>
+              <div>
+                <label class="field-label" for="bmi-weight">体重（千克）</label>
+                <input type="number" id="bmi-weight" min="0.1" step="0.1" inputmode="decimal" placeholder="例如 65" />
+              </div>
+            </div>
+            <button type="button" class="btn btn-primary" id="bmi-calc">计算 BMI</button>
+            <div class="result" id="bmi-result" aria-live="polite">填写身高与体重后点击计算。</div>
+          </div>
+        </section>
+
+        <section class="card" role="tabpanel" id="panel-loan" aria-labelledby="tab-loan" hidden>
+          <h2 class="panel-title">贷款月供</h2>
+          <p class="panel-desc">等额本息：月供 = P×r×(1+r)^n / ((1+r)^n−1)，r 为月利率。</p>
+          <div class="stack">
+            <div>
+              <label class="field-label" for="loan-principal">贷款本金（元）</label>
+              <input type="number" id="loan-principal" min="1" step="1" inputmode="decimal" placeholder="例如 500000" />
+            </div>
+            <div class="grid-2">
+              <div>
+                <label class="field-label" for="loan-rate">年利率（%）</label>
+                <input type="number" id="loan-rate" min="0" step="0.01" inputmode="decimal" placeholder="例如 3.85" />
+              </div>
+              <div>
+                <label class="field-label" for="loan-months">期数（月）</label>
+                <input type="number" id="loan-months" min="1" step="1" inputmode="numeric" placeholder="例如 360" />
+              </div>
+            </div>
+            <button type="button" class="btn btn-primary" id="loan-calc">计算月供</button>
+            <div class="result" id="loan-result" aria-live="polite">输入贷款参数后点击计算。</div>
+          </div>
+        </section>
+
+        <section class="card" role="tabpanel" id="panel-tip" aria-labelledby="tab-tip" hidden>
+          <h2 class="panel-title">小费分摊</h2>
+          <p class="panel-desc">根据账单、小费比例与人数计算每人应付金额。</p>
+          <div class="stack">
+            <div>
+              <label class="field-label" for="tip-bill">账单金额（元）</label>
+              <input type="number" id="tip-bill" min="0" step="0.01" inputmode="decimal" placeholder="例如 200" />
+            </div>
+            <div class="grid-2">
+              <div>
+                <label class="field-label" for="tip-percent">小费比例（%）</label>
+                <input type="number" id="tip-percent" min="0" step="1" inputmode="decimal" placeholder="例如 15" />
+              </div>
+              <div>
+                <label class="field-label" for="tip-split">分摊人数</label>
+                <input type="number" id="tip-split" min="1" step="1" inputmode="numeric" value="1" />
+              </div>
+            </div>
+            <button type="button" class="btn btn-primary" id="tip-calc">计算</button>
+            <div class="result" id="tip-result" aria-live="polite">填写账单与小费比例后点击计算。</div>
+          </div>
+        </section>
+
+        <section class="card" role="tabpanel" id="panel-age" aria-labelledby="tab-age" hidden>
+          <h2 class="panel-title">年龄计算</h2>
+          <p class="panel-desc">从出生日期计算至今天的年、月、日。</p>
+          <div class="stack">
+            <div>
+              <label class="field-label" for="age-birth">出生日期</label>
+              <input type="date" id="age-birth" />
+            </div>
+            <button type="button" class="btn btn-primary" id="age-calc">计算年龄</button>
+            <div class="result" id="age-result" aria-live="polite">选择出生日期后点击计算。</div>
+          </div>
+        </section>
+
+        <section class="card" role="tabpanel" id="panel-pct" aria-labelledby="tab-pct" hidden>
+          <h2 class="panel-title">百分比</h2>
+          <p class="panel-desc">求 x% 的 y；或从 a 到 b 的变化率。</p>
+          <div class="stack">
+            <p><strong>求数值</strong>：x% 的 y 是多少？</p>
+            <div class="grid-2">
+              <div>
+                <label class="field-label" for="pct-x">x（%）</label>
+                <input type="number" id="pct-x" step="any" inputmode="decimal" placeholder="例如 20" />
+              </div>
+              <div>
+                <label class="field-label" for="pct-y">y</label>
+                <input type="number" id="pct-y" step="any" inputmode="decimal" placeholder="例如 500" />
+              </div>
+            </div>
+            <button type="button" class="btn btn-primary" id="pct-of-calc">计算 x% 的 y</button>
+            <div class="result" id="pct-of-result" aria-live="polite">—</div>
+            <hr class="split" />
+            <p><strong>变化率</strong>：从 a 变到 b 的百分比变化</p>
+            <div class="grid-2">
+              <div>
+                <label class="field-label" for="pct-a">原值 a</label>
+                <input type="number" id="pct-a" step="any" inputmode="decimal" placeholder="例如 100" />
+              </div>
+              <div>
+                <label class="field-label" for="pct-b">新值 b</label>
+                <input type="number" id="pct-b" step="any" inputmode="decimal" placeholder="例如 120" />
+              </div>
+            </div>
+            <button type="button" class="btn btn-primary" id="pct-change-calc">计算变化率</button>
+            <div class="result" id="pct-change-result" aria-live="polite">—</div>
+          </div>
+        </section>
+
+        <section class="card" role="tabpanel" id="panel-temp" aria-labelledby="tab-temp" hidden>
+          <h2 class="panel-title">温度换算</h2>
+          <p class="panel-desc">摄氏度与华氏度互转。</p>
+          <div class="stack">
+            <div class="grid-2">
+              <div>
+                <label class="field-label" for="temp-c">摄氏度 ℃</label>
+                <input type="number" id="temp-c" step="any" inputmode="decimal" placeholder="例如 25" />
+              </div>
+              <div>
+                <label class="field-label" for="temp-f">华氏度 ℉</label>
+                <input type="number" id="temp-f" step="any" inputmode="decimal" placeholder="例如 77" />
+              </div>
+            </div>
+            <p class="hint">在任一输入框修改数值，另一侧会自动更新。</p>
+            <div class="result ok" id="temp-result" aria-live="polite">双向联动，无需点击按钮。</div>
+          </div>
+        </section>
+
+        <section class="card" role="tabpanel" id="panel-len" aria-labelledby="tab-len" hidden>
+          <h2 class="panel-title">长度换算</h2>
+          <p class="panel-desc">米、厘米、英寸、英尺之间换算。</p>
+          <div class="stack">
+            <div>
+              <label class="field-label" for="len-value">数值</label>
+              <input type="number" id="len-value" step="any" inputmode="decimal" placeholder="例如 1.75" />
+            </div>
+            <div>
+              <label class="field-label" for="len-unit">单位</label>
+              <select id="len-unit">
+                <option value="m">米 (m)</option>
+                <option value="cm">厘米 (cm)</option>
+                <option value="in">英寸 (inch)</option>
+                <option value="ft">英尺 (ft)</option>
+              </select>
+            </div>
+            <button type="button" class="btn btn-primary" id="len-calc">换算</button>
+            <div class="result" id="len-result" aria-live="polite">输入数值与单位后点击换算。</div>
+          </div>
+        </section>
+
+        <section class="card" role="tabpanel" id="panel-weight" aria-labelledby="tab-weight" hidden>
+          <h2 class="panel-title">重量换算</h2>
+          <p class="panel-desc">千克与磅互转。</p>
+          <div class="stack">
+            <div class="grid-2">
+              <div>
+                <label class="field-label" for="wt-kg">千克 (kg)</label>
+                <input type="number" id="wt-kg" step="any" inputmode="decimal" placeholder="例如 70" />
+              </div>
+              <div>
+                <label class="field-label" for="wt-lb">磅 (lb)</label>
+                <input type="number" id="wt-lb" step="any" inputmode="decimal" placeholder="例如 154.32" />
+              </div>
+            </div>
+            <p class="hint">修改千克或磅，另一项自动更新（1 kg ≈ 2.2046226218 lb）。</p>
+            <div class="result ok" id="wt-result" aria-live="polite">双向联动。</div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      var tabs = document.querySelectorAll('.nav [role="tab"]');
+      var panels = document.querySelectorAll('[role="tabpanel"]');
+
+      function selectTab(tab) {
+        tabs.forEach(function (t) {
+          var on = t === tab;
+          t.setAttribute('aria-selected', on ? 'true' : 'false');
+        });
+        panels.forEach(function (p) {
+          var on = p.id === tab.getAttribute('aria-controls');
+          p.classList.toggle('active', on);
+          p.hidden = !on;
+        });
+        tab.focus();
+      }
+
+      tabs.forEach(function (tab) {
+        tab.addEventListener('click', function () { selectTab(tab); });
+        tab.addEventListener('keydown', function (e) {
+          var idx = Array.prototype.indexOf.call(tabs, tab);
+          if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
+            e.preventDefault();
+            selectTab(tabs[(idx + 1) % tabs.length]);
+          } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
+            e.preventDefault();
+            selectTab(tabs[(idx - 1 + tabs.length) % tabs.length]);
+          }
+        });
+      });
+
+      function parseNum(raw, label) {
+        if (raw === '' || raw === null || raw === undefined) return { err: '请填写' + label };
+        var n = Number(raw);
+        if (!Number.isFinite(n)) return { err: label + '必须是有效数字' };
+        return { value: n };
+      }
+
+      function parsePositive(raw, label) {
+        var p = parseNum(raw, label);
+        if (p.err) return p;
+        if (p.value <= 0) return { err: label + '必须大于 0' };
+        return p;
+      }
+
+      function parseNonNeg(raw, label) {
+        var p = parseNum(raw, label);
+        if (p.err) return p;
+        if (p.value < 0) return { err: label + '不能为负数' };
+        return p;
+      }
+
+      function setResult(el, html, ok) {
+        el.innerHTML = html;
+        el.classList.remove('ok', 'err');
+        if (ok === true) el.classList.add('ok');
+        if (ok === false) el.classList.add('err');
+      }
+
+      function fmt(n, digits) {
+        return Number(n).toLocaleString('zh-CN', {
+          minimumFractionDigits: digits,
+          maximumFractionDigits: digits
+        });
+      }
+
+      document.getElementById('bmi-calc').addEventListener('click', function () {
+        var el = document.getElementById('bmi-result');
+        var h = parsePositive(document.getElementById('bmi-height').value, '身高');
+        if (h.err) return setResult(el, h.err, false);
+        var w = parsePositive(document.getElementById('bmi-weight').value, '体重');
+        if (w.err) return setResult(el, w.err, false);
+        var m = h.value / 100;
+        var bmi = w.value / (m * m);
+        var cat;
+        if (bmi < 18.5) cat = '偏瘦';
+        else if (bmi < 25) cat = '正常';
+        else if (bmi < 30) cat = '偏胖';
+        else cat = '肥胖';
+        setResult(el, '<strong>BMI：' + fmt(bmi, 1) + '</strong><br>分类：' + cat, true);
+      });
+
+      document.getElementById('loan-calc').addEventListener('click', function () {
+        var el = document.getElementById('loan-result');
+        var P = parsePositive(document.getElementById('loan-principal').value, '贷款本金');
+        if (P.err) return setResult(el, P.err, false);
+        var rate = parseNonNeg(document.getElementById('loan-rate').value, '年利率');
+        if (rate.err) return setResult(el, rate.err, false);
+        var n = parsePositive(document.getElementById('loan-months').value, '期数');
+        if (n.err) return setResult(el, n.err, false);
+        n.value = Math.floor(n.value);
+        var r = rate.value / 100 / 12;
+        var monthly;
+        if (r === 0) {
+          monthly = P.value / n.value;
+        } else {
+          var pow = Math.pow(1 + r, n.value);
+          monthly = P.value * r * pow / (pow - 1);
+        }
+        var total = monthly * n.value;
+        var interest = total - P.value;
+        setResult(el,
+          '<strong>每月还款：' + fmt(monthly, 2) + ' 元</strong><br>' +
+          '还款总额：' + fmt(total, 2) + ' 元<br>利息总额：' + fmt(interest, 2) + ' 元',
+          true);
+      });
+
+      document.getElementById('tip-calc').addEventListener('click', function () {
+        var el = document.getElementById('tip-result');
+        var bill = parseNonNeg(document.getElementById('tip-bill').value, '账单金额');
+        if (bill.err) return setResult(el, bill.err, false);
+        var pct = parseNonNeg(document.getElementById('tip-percent').value, '小费比例');
+        if (pct.err) return setResult(el, pct.err, false);
+        var splitRaw = document.getElementById('tip-split').value;
+        var split = parsePositive(splitRaw, '分摊人数');
+        if (split.err) return setResult(el, split.err, false);
+        split.value = Math.floor(split.value);
+        var tip = bill.value * pct.value / 100;
+        var total = bill.value + tip;
+        var each = total / split.value;
+        setResult(el,
+          '小费：<strong>' + fmt(tip, 2) + '</strong> 元<br>' +
+          '合计：<strong>' + fmt(total, 2) + '</strong> 元<br>' +
+          '每人：<strong>' + fmt(each, 2) + '</strong> 元（' + split.value + ' 人）',
+          true);
+      });
+
+      document.getElementById('age-calc').addEventListener('click', function () {
+        var el = document.getElementById('age-result');
+        var raw = document.getElementById('age-birth').value;
+        if (!raw) return setResult(el, '请选择出生日期', false);
+        var birth = new Date(raw + 'T00:00:00');
+        if (Number.isNaN(birth.getTime())) return setResult(el, '出生日期无效', false);
+        var today = new Date();
+        today.setHours(0, 0, 0, 0);
+        if (birth > today) return setResult(el, '出生日期不能晚于今天', false);
+        var y = today.getFullYear() - birth.getFullYear();
+        var m = today.getMonth() - birth.getMonth();
+        var d = today.getDate() - birth.getDate();
+        if (d < 0) {
+          m -= 1;
+          var prev = new Date(today.getFullYear(), today.getMonth(), 0);
+          d += prev.getDate();
+        }
+        if (m < 0) {
+          y -= 1;
+          m += 12;
+        }
+        setResult(el, '<strong>' + y + ' 岁 ' + m + ' 个月 ' + d + ' 天</strong>', true);
+      });
+
+      document.getElementById('pct-of-calc').addEventListener('click', function () {
+        var el = document.getElementById('pct-of-result');
+        var x = parseNum(document.getElementById('pct-x').value, 'x');
+        if (x.err) return setResult(el, x.err, false);
+        var y = parseNum(document.getElementById('pct-y').value, 'y');
+        if (y.err) return setResult(el, y.err, false);
+        var val = y.value * x.value / 100;
+        setResult(el, x.value + '% 的 ' + fmt(y.value, 4) + ' = <strong>' + fmt(val, 4) + '</strong>', true);
+      });
+
+      document.getElementById('pct-change-calc').addEventListener('click', function () {
+        var el = document.getElementById('pct-change-result');
+        var a = parseNum(document.getElementById('pct-a').value, '原值 a');
+        if (a.err) return setResult(el, a.err, false);
+        var b = parseNum(document.getElementById('pct-b').value, '新值 b');
+        if (b.err) return setResult(el, b.err, false);
+        if (a.value === 0) return setResult(el, '原值 a 不能为 0（无法计算变化率）', false);
+        var change = (b.value - a.value) / a.value * 100;
+        var sign = change > 0 ? '+' : '';
+        setResult(el, '从 ' + fmt(a.value, 4) + ' 到 ' + fmt(b.value, 4) + '：<strong>' + sign + fmt(change, 2) + '%</strong>', true);
+      });
+
+      var tempLock = false;
+      function linkTemp(from) {
+        if (tempLock) return;
+        tempLock = true;
+        var cEl = document.getElementById('temp-c');
+        var fEl = document.getElementById('temp-f');
+        var res = document.getElementById('temp-result');
+        if (from === 'c') {
+          var c = parseNum(cEl.value, '摄氏度');
+          if (c.err) {
+            setResult(res, c.err, false);
+            tempLock = false;
+            return;
+          }
+          var f = c.value * 9 / 5 + 32;
+          fEl.value = fmt(f, 4);
+          setResult(res, c.value + ' ℃ = ' + fmt(f, 2) + ' ℉', true);
+        } else {
+          var f2 = parseNum(fEl.value, '华氏度');
+          if (f2.err) {
+            setResult(res, f2.err, false);
+            tempLock = false;
+            return;
+          }
+          var c2 = (f2.value - 32) * 5 / 9;
+          cEl.value = fmt(c2, 4);
+          setResult(res, f2.value + ' ℉ = ' + fmt(c2, 2) + ' ℃', true);
+        }
+        tempLock = false;
+      }
+      document.getElementById('temp-c').addEventListener('input', function () { linkTemp('c'); });
+      document.getElementById('temp-f').addEventListener('input', function () { linkTemp('f'); });
+
+      var LEN_TO_M = { m: 1, cm: 0.01, in: 0.0254, ft: 0.3048 };
+      document.getElementById('len-calc').addEventListener('click', function () {
+        var el = document.getElementById('len-result');
+        var v = parseNum(document.getElementById('len-value').value, '数值');
+        if (v.err) return setResult(el, v.err, false);
+        var unit = document.getElementById('len-unit').value;
+        var meters = v.value * LEN_TO_M[unit];
+        setResult(el,
+          '米：<strong>' + fmt(meters, 6) + '</strong><br>' +
+          '厘米：<strong>' + fmt(meters / LEN_TO_M.cm, 4) + '</strong><br>' +
+          '英寸：<strong>' + fmt(meters / LEN_TO_M.in, 4) + '</strong><br>' +
+          '英尺：<strong>' + fmt(meters / LEN_TO_M.ft, 4) + '</strong>',
+          true);
+      });
+
+      var wtLock = false;
+      var LB_PER_KG = 2.2046226218;
+      function linkWeight(from) {
+        if (wtLock) return;
+        wtLock = true;
+        var kgEl = document.getElementById('wt-kg');
+        var lbEl = document.getElementById('wt-lb');
+        var res = document.getElementById('wt-result');
+        if (from === 'kg') {
+          var kg = parseNum(kgEl.value, '千克');
+          if (kg.err) { setResult(res, kg.err, false); wtLock = false; return; }
+          lbEl.value = fmt(kg.value * LB_PER_KG, 6);
+          setResult(res, kg.value + ' kg ≈ ' + fmt(kg.value * LB_PER_KG, 4) + ' lb', true);
+        } else {
+          var lb = parseNum(lbEl.value, '磅');
+          if (lb.err) { setResult(res, lb.err, false); wtLock = false; return; }
+          kgEl.value = fmt(lb.value / LB_PER_KG, 6);
+          setResult(res, lb.value + ' lb ≈ ' + fmt(lb.value / LB_PER_KG, 4) + ' kg', true);
+        }
+        wtLock = false;
+      }
+      document.getElementById('wt-kg').addEventListener('input', function () { linkWeight('kg'); });
+      document.getElementById('wt-lb').addEventListener('input', function () { linkWeight('lb'); });
+    })();
+  </script>
+</body>
+</html>

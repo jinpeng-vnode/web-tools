@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>正则表达式工具</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg: #f4f1ea;
+      --fg: #1c1915;
+      --muted: #5c564c;
+      --card: #fffdf8;
+      --line: #d9d2c5;
+      --accent: #1f4d3a;
+      --hl: #fde68a;
+      --fail: #b91c1c;
+      --radius: 10px;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #161411;
+        --fg: #f3eee4;
+        --muted: #b4ab9c;
+        --card: #211d18;
+        --line: #3a342c;
+        --accent: #8fbfa6;
+        --hl: #854d0e;
+      }
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      background: var(--bg);
+      color: var(--fg);
+      line-height: 1.5;
+    }
+    a { color: var(--accent); }
+    .wrap { max-width: 960px; margin: 0 auto; padding: 24px 20px 64px; }
+    h1 { font-size: 1.6rem; font-weight: 650; margin: 12px 0 4px; }
+    .lead { color: var(--muted); margin: 0 0 20px; }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 20px;
+    }
+    label.field-label { display: block; font-size: 0.85rem; font-weight: 600; color: var(--muted); margin-bottom: 6px; }
+    input[type="text"], textarea {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--bg);
+      color: var(--fg);
+      font: inherit;
+    }
+    input.pattern { font-family: ui-monospace, Consolas, monospace; }
+    textarea { min-height: 160px; resize: vertical; font-family: ui-monospace, Consolas, monospace; font-size: 0.9rem; }
+    input:focus-visible, textarea:focus-visible, button:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+    .flags { display: flex; flex-wrap: wrap; gap: 14px; margin: 12px 0; }
+    .flags label { display: inline-flex; align-items: center; gap: 6px; font-size: 0.9rem; cursor: pointer; }
+    .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+    .chip {
+      padding: 6px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: var(--bg);
+      font: inherit;
+      font-size: 0.85rem;
+      cursor: pointer;
+    }
+    .chip:hover { border-color: var(--accent); }
+    .highlight-wrap {
+      position: relative;
+      margin-top: 8px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      min-height: 160px;
+      background: var(--bg);
+    }
+    .highlight-back, .highlight-front {
+      padding: 10px 12px;
+      margin: 0;
+      font-family: ui-monospace, Consolas, monospace;
+      font-size: 0.9rem;
+      line-height: 1.45;
+      white-space: pre-wrap;
+      word-break: break-word;
+      min-height: 160px;
+    }
+    .highlight-back {
+      position: absolute;
+      inset: 0;
+      color: transparent;
+      pointer-events: none;
+      overflow: hidden;
+    }
+    .highlight-back mark {
+      background: var(--hl);
+      color: transparent;
+      border-radius: 2px;
+    }
+    .highlight-front {
+      position: relative;
+      background: transparent;
+      border: none;
+      width: 100%;
+      resize: vertical;
+      color: var(--fg);
+    }
+    .msg {
+      padding: 10px 12px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      margin: 12px 0;
+    }
+    .msg.err { border: 1px solid var(--fail); color: var(--fail); background: color-mix(in srgb, var(--fail) 10%, var(--card)); }
+    .msg.info { border: 1px solid var(--line); color: var(--muted); }
+    .match-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+    .match-list li {
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      font-family: ui-monospace, monospace;
+      font-size: 0.82rem;
+    }
+    .match-list .idx { color: var(--muted); font-size: 0.75rem; display: block; margin-bottom: 4px; }
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <p><a href="../index.html">← 返回工具列表</a></p>
+    <h1>正则表达式工具</h1>
+    <p class="lead">实时高亮匹配、查看捕获组。无效正则会显示错误，不会中断页面。</p>
+
+    <div class="card">
+      <label class="field-label" for="pattern">正则表达式</label>
+      <input type="text" class="pattern" id="pattern" autocomplete="off" spellcheck="false" placeholder="例如 [a-z]+" />
+
+      <fieldset class="flags" aria-label="匹配标志">
+        <legend class="field-label" style="margin-bottom:8px">标志</legend>
+        <label><input type="checkbox" id="flag-g" checked /> g 全局</label>
+        <label><input type="checkbox" id="flag-i" /> i 忽略大小写</label>
+        <label><input type="checkbox" id="flag-m" /> m 多行</label>
+        <label><input type="checkbox" id="flag-s" /> s dotAll</label>
+        <label><input type="checkbox" id="flag-u" /> u Unicode</label>
+      </fieldset>
+
+      <p class="field-label">常用预设</p>
+      <div class="chips" role="group" aria-label="正则预设">
+        <button type="button" class="chip" data-pat="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}">邮箱</button>
+        <button type="button" class="chip" data-pat="https?:\/\/[^\s/$.?#].[^\s]*">URL</button>
+        <button type="button" class="chip" data-pat="1[3-9]\d{9}">手机号</button>
+        <button type="button" class="chip" data-pat="(?:(?:25[0-5]|2[0-4]\d|[01]?\d?\d)\.){3}(?:25[0-5]|2[0-4]\d|[01]?\d?\d)">IPv4</button>
+        <button type="button" class="chip" data-pat="\d{4}-\d{2}-\d{2}">日期 YYYY-MM-DD</button>
+      </div>
+
+      <label class="field-label" for="test-text">测试文本</label>
+      <div class="highlight-wrap">
+        <pre class="highlight-back" id="hl-back" aria-hidden="true"></pre>
+        <textarea class="highlight-front" id="test-text" spellcheck="false" placeholder="在此输入要匹配的文本…"></textarea>
+      </div>
+
+      <div id="err-msg" class="msg err hidden" role="alert"></div>
+      <div id="info-msg" class="msg info hidden" role="status"></div>
+
+      <h2 class="field-label" style="margin-top:20px;font-size:1rem;color:var(--fg)">匹配列表</h2>
+      <ul class="match-list" id="match-list" aria-live="polite"></ul>
+    </div>
+  </div>
+
+  <script>
+(function () {
+  var patternEl = document.getElementById('pattern');
+  var testEl = document.getElementById('test-text');
+  var hlBack = document.getElementById('hl-back');
+  var errMsg = document.getElementById('err-msg');
+  var infoMsg = document.getElementById('info-msg');
+  var matchList = document.getElementById('match-list');
+  var flagIds = ['g', 'i', 'm', 's', 'u'];
+
+  function escapeHtml(s) {
+    return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+
+  function getFlags() {
+    return flagIds.filter(function (f) {
+      return document.getElementById('flag-' + f).checked;
+    }).join('');
+  }
+
+  function buildRegex() {
+    var src = patternEl.value;
+    if (!src.trim()) return { error: '请输入正则表达式' };
+    try {
+      return { re: new RegExp(src, getFlags()) };
+    } catch (e) {
+      return { error: e.message || String(e) };
+    }
+  }
+
+  function syncScroll() {
+    hlBack.scrollTop = testEl.scrollTop;
+    hlBack.scrollLeft = testEl.scrollLeft;
+  }
+
+  function run() {
+    errMsg.classList.add('hidden');
+    infoMsg.classList.add('hidden');
+    matchList.innerHTML = '';
+    var text = testEl.value;
+    var built = buildRegex();
+    if (built.error) {
+      hlBack.textContent = '';
+      errMsg.textContent = '无效正则：' + built.error;
+      errMsg.classList.remove('hidden');
+      return;
+    }
+    var re = built.re;
+    if (!text) {
+      hlBack.innerHTML = '';
+      infoMsg.textContent = '输入测试文本以查看匹配';
+      infoMsg.classList.remove('hidden');
+      return;
+    }
+
+    var matches = [];
+    if (re.global) {
+      var m;
+      while ((m = re.exec(text)) !== null) {
+        matches.push(m);
+        if (m[0] === '') {
+          re.lastIndex++;
+        }
+        if (matches.length > 500) break;
+      }
+    } else {
+      var single = re.exec(text);
+      if (single) matches.push(single);
+    }
+
+    var parts = [];
+    var last = 0;
+    matches.forEach(function (m) {
+      var start = m.index;
+      var end = start + m[0].length;
+      parts.push(escapeHtml(text.slice(last, start)));
+      parts.push('<mark>' + escapeHtml(text.slice(start, end)) + '</mark>');
+      last = end;
+    });
+    parts.push(escapeHtml(text.slice(last)));
+    hlBack.innerHTML = parts.join('');
+    syncScroll();
+
+    if (!matches.length) {
+      infoMsg.textContent = '无匹配';
+      infoMsg.classList.remove('hidden');
+      return;
+    }
+    infoMsg.textContent = '共 ' + matches.length + ' 处匹配';
+    infoMsg.classList.remove('hidden');
+
+    matches.forEach(function (m, i) {
+      var li = document.createElement('li');
+      var groups = [];
+      for (var g = 0; g < m.length; g++) {
+        groups.push('组' + g + ': ' + JSON.stringify(m[g]));
+      }
+      li.innerHTML = '<span class="idx">#' + (i + 1) + '  index ' + m.index + '–' + (m.index + m[0].length) + '</span>' +
+        escapeHtml(m[0]) + '<br><span style="color:var(--muted)">' + escapeHtml(groups.join(' · ')) + '</span>';
+      matchList.appendChild(li);
+    });
+  }
+
+  [patternEl, testEl].forEach(function (el) {
+    el.addEventListener('input', run);
+  });
+  flagIds.forEach(function (f) {
+    document.getElementById('flag-' + f).addEventListener('change', run);
+  });
+  testEl.addEventListener('scroll', syncScroll);
+
+  document.querySelectorAll('.chip').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      patternEl.value = btn.getAttribute('data-pat');
+      patternEl.focus();
+      run();
+    });
+  });
+
+  run();
+})();
+  </script>
+</body>
+</html>

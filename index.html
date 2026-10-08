@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>常用工具</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg: #f4f1ea;
+      --fg: #1c1915;
+      --muted: #5c564c;
+      --card: #fffdf8;
+      --line: #d9d2c5;
+      --accent: #1f4d3a;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #161411;
+        --fg: #f3eee4;
+        --muted: #b4ab9c;
+        --card: #211d18;
+        --line: #3a342c;
+        --accent: #8fbfa6;
+      }
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      background: var(--bg);
+      color: var(--fg);
+      line-height: 1.5;
+    }
+    main {
+      max-width: 880px;
+      margin: 0 auto;
+      padding: 48px 20px 80px;
+    }
+    h1 {
+      font-size: 1.75rem;
+      font-weight: 650;
+      margin: 0 0 8px;
+    }
+    .lead {
+      color: var(--muted);
+      margin: 0 0 32px;
+      max-width: 40em;
+    }
+    ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 12px;
+    }
+    a.card {
+      display: block;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 16px 18px;
+      text-decoration: none;
+      color: inherit;
+      min-height: 108px;
+    }
+    a.card:hover,
+    a.card:focus-visible {
+      border-color: var(--accent);
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+    a.card strong {
+      display: block;
+      margin-bottom: 6px;
+      color: var(--accent);
+    }
+    a.card span {
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>常用工具</h1>
+    <p class="lead">浏览器里直接用的常用工具。全部是静态页，不上传数据、不跑构建。</p>
+    <ul>
+      <li><a class="card" href="./color-tools/"><strong>颜色工具</strong><span>取色、调色板、渐变、对比度。</span></a></li>
+      <li><a class="card" href="./json-tools/"><strong>JSON 工具</strong><span>格式化、校验、查看。</span></a></li>
+      <li><a class="card" href="./password-tools/"><strong>密码生成</strong><span>本地生成随机密码。</span></a></li>
+      <li><a class="card" href="./qrcode-tools/"><strong>二维码</strong><span>文本生成二维码。</span></a></li>
+      <li><a class="card" href="./regex-tools/"><strong>正则测试</strong><span>正则编写与调试。</span></a></li>
+      <li><a class="card" href="./image-compress-tools/"><strong>图片压缩</strong><span>浏览器内压缩，不上传服务器。</span></a></li>
+      <li><a class="card" href="./calculator-tools/"><strong>计算器</strong><span>BMI、贷款、单位换算等。</span></a></li>
+      <li><a class="card" href="./excalidraw-hub/"><strong>白板</strong><span>Excalidraw 在线绘图。</span></a></li>
+    </ul>
+  </main>
+</body>
+</html>
